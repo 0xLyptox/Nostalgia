@@ -2,7 +2,7 @@
 // Created by Jacob Zhitomirsky on 08-May-19.
 //
 
-#include "packet_reader.hpp"
+#include "network/packet_reader.hpp"
 
 #define MAX_STRING_SIZE 32767
 #define THROW_BAD_DATA \
@@ -16,6 +16,12 @@ packet_reader::packet_reader (const std::vector<char>& buf)
 }
 
 
+
+bool
+packet_reader::read_bool ()
+{
+  return (bool)this->read_byte ();
+}
 
 int8_t
 packet_reader::read_byte ()
@@ -52,14 +58,14 @@ packet_reader::read_long ()
   if (this->pos + 8 > this->buf.size ())
     THROW_BAD_DATA;
   this->pos += 8;
-  return ((int64_t)this->buf[this->pos - 8] << 56)
-         | ((int64_t)this->buf[this->pos - 7] << 48)
-         | ((int64_t)this->buf[this->pos - 6] << 40)
-         | ((int64_t)this->buf[this->pos - 5] << 32)
-         | ((int64_t)this->buf[this->pos - 4] << 24)
-         | ((int64_t)this->buf[this->pos - 3] << 16)
-         | ((int64_t)this->buf[this->pos - 2] << 8)
-         | (int64_t)this->buf[this->pos - 1];
+  return ((uint64_t)this->buf[this->pos - 8] << 56)
+         | ((uint64_t)this->buf[this->pos - 7] << 48)
+         | ((uint64_t)this->buf[this->pos - 6] << 40)
+         | ((uint64_t)this->buf[this->pos - 5] << 32)
+         | ((uint64_t)this->buf[this->pos - 4] << 24)
+         | ((uint64_t)this->buf[this->pos - 3] << 16)
+         | ((uint64_t)this->buf[this->pos - 2] << 8)
+         | (uint64_t)this->buf[this->pos - 1];
 }
 
 int64_t
@@ -79,6 +85,18 @@ packet_reader::read_varlong ()
   throw std::exception ("packet_reader: varlong longer than 10 bytes");
 }
 
+float packet_reader::read_float ()
+{
+  auto n = this->read_int ();
+  return *(float *)&n;
+}
+
+double packet_reader::read_double ()
+{
+  auto n = this->read_long ();
+  return *(double *)&n;
+}
+
 std::string
 packet_reader::read_string (unsigned max_size)
 {
@@ -95,5 +113,24 @@ packet_reader::read_string (unsigned max_size)
   this->pos += (unsigned)str_size;
 
   return str;
+}
+
+block_pos
+packet_reader::read_position ()
+{
+  auto num = this->read_unsigned_long ();
+
+  int x = (int)(num >> 38);
+  int y = (int)((num >> 26) & 0xFFF);
+  int z = (int)(num & 0x3FFFFFF);
+
+  if (x >= (1 << 25))
+    x -= 1 << 26;
+  if (y >= (1 << 11))
+    y -= 1 << 12;
+  if (z >= (1 << 25))
+    z -= 1 << 26;
+
+  return block_pos (x, y, z);
 }
 

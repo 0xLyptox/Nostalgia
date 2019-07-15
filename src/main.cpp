@@ -4,9 +4,9 @@
 #include "caf/all.hpp"
 #include "caf/io/all.hpp"
 
-#include "client.hpp"
-#include "server.hpp"
-#include "packet_writer.hpp"
+#include "player/client.hpp"
+#include "system/server.hpp"
+#include "network/packet_writer.hpp"
 
 class nostalgia_config : public caf::actor_system_config
 {

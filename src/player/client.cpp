@@ -2,11 +2,11 @@
 // Created by Jacob Zhitomirsky on 08-May-19.
 //
 
-#include "client.hpp"
-#include "packet_reader.hpp"
-#include "packet_writer.hpp"
-#include "consts.hpp"
-#include "packets.hpp"
+#include "player/client.hpp"
+#include "network/packet_reader.hpp"
+#include "network/packet_writer.hpp"
+#include "system/consts.hpp"
+#include "network/packets.hpp"
 
 
 client::client (caf::actor_config& cfg, const caf::actor& srv,
@@ -120,6 +120,26 @@ client::handle_play_state_packet (packet_reader& reader)
   auto id = reader.read_varlong ();
   switch (id)
     {
+    case IPI_CLIENT_SETTINGS:
+      this->handle_client_settings_packet (reader);
+      break;
+
+    case IPI_PLAYER:
+      this->handle_player_packet (reader);
+      break;
+
+    case IPI_PLAYER_POSITION:
+      this->handle_player_position_packet (reader);
+      break;
+
+    case IPI_PLAYER_POSITION_AND_LOOK:
+      this->handle_player_position_and_look_packet (reader);
+      break;
+
+    case IPI_PLAYER_LOOK:
+      this->handle_player_look_packet (reader);
+      break;
+
     default:
       caf::aout (this) << "WARNING: Unknown PLAY state packet (ID " << id << ")" << std::endl;
       break;
@@ -219,6 +239,65 @@ client::handle_login_start_packet (packet_reader& reader)
 }
 
 
+void
+client::handle_client_settings_packet (packet_reader& reader)
+{
+  auto locale = reader.read_string (16);
+  int view_distance = reader.read_byte ();
+  int chat_mode = (int)reader.read_varlong ();
+  bool chat_colors = reader.read_bool ();
+  unsigned skin_parts = reader.read_unsigned_byte ();
+  int main_hand = (int)reader.read_varlong ();
+
+}
+
+void client::handle_player_packet (packet_reader& reader)
+{
+  bool ground = reader.read_bool ();
+  this->update_position (this->pos, this->rot, ground);
+}
+
+inline void
+swap (unsigned char& a, unsigned char& b)
+{
+  unsigned char t = a;
+  a = b;
+  b = t;
+}
+
+void client::handle_player_position_packet (packet_reader& reader)
+{
+  double x = reader.read_double ();
+  caf::aout (this) << "x: " << x << std::endl;
+
+//  double x = reader.read_double ();
+//  double y = reader.read_double ();
+//  double z = reader.read_double ();
+//  bool ground = reader.read_bool ();
+//  this->update_position ({ x, y, z }, this->rot, ground);
+}
+
+void client::handle_player_position_and_look_packet (packet_reader& reader)
+{
+  double x = reader.read_double ();
+  double y = reader.read_double ();
+  double z = reader.read_double ();
+  float yaw = reader.read_float ();
+  float pitch = reader.read_float ();
+  bool ground = reader.read_bool ();
+  this->update_position ({ x, y, z }, { yaw, pitch }, ground);
+}
+
+void client::handle_player_look_packet (packet_reader& reader)
+{
+  float yaw = reader.read_float ();
+  float pitch = reader.read_float ();
+  bool ground = reader.read_bool ();
+  this->update_position (this->pos, { yaw, pitch }, ground);
+}
+
+
+
 
 void
 client::join_world (const std::string& world_name)
@@ -229,5 +308,32 @@ client::join_world (const std::string& world_name)
       [=] (const world_info& info) {
         caf::aout (this) << "Got world information of \"" << info.name << "\" from server." << std::endl;
         this->curr_world = info;
+
+        // send initial chunks
+        chunk_pos cpos = this->pos;
+        for (int cx = cpos.x; cx <= cpos.x; ++cx)
+          for (int cz = cpos.z; cz <= cpos.z; ++cz)
+            {
+              // request chunk data from world
+              this->send (this->curr_world.actor, caf::atom ("reqcdata"), cx, cz, this->broker);
+            }
+
+        // spawn player
+        this->pos = player_pos (0, 130.0, 0);
+        this->send_packet (packets::play::make_spawn_position (this->pos));
+        this->send_packet (packets::play::make_player_position_and_look (
+            this->pos, this->rot, 0, 1));
       });
+}
+
+void
+client::update_position (player_pos pos, player_rot rot, bool ground)
+{
+  this->pos = pos;
+  this->rot = rot;
+  this->ground = ground;
+
+  caf::aout (this) << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << " : " << rot.yaw << ", " << rot.pitch << std::endl;
+
+  caf::aout (this) << " - " << *(uint64_t *)&pos.y << std::endl;
 }

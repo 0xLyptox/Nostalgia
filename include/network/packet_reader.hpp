@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstdint>
 #include <exception>
+#include "util/position.hpp"
 
 
 /*!
@@ -40,12 +41,16 @@ class packet_reader
   inline unsigned int position () const { return this->pos; }
   inline unsigned int size () const { return (unsigned int)this->buf.size (); }
 
+  bool read_bool ();
   int8_t read_byte ();
   int16_t read_short ();
   int32_t read_int ();
   int64_t read_long ();
   int64_t read_varlong ();
+  float read_float ();
+  double read_double ();
   std::string read_string (unsigned max_size = 0);
+  block_pos read_position ();
 
   inline uint8_t read_unsigned_byte () { return (uint8_t)this->read_byte (); }
   inline uint16_t read_unsigned_short () { return (uint16_t)this->read_short (); }

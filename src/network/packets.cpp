@@ -2,8 +2,8 @@
 // Created by Jacob Zhitomirsky on 09-May-19.
 //
 
-#include "packets.hpp"
-#include "consts.hpp"
+#include "network/packets.hpp"
+#include "system/consts.hpp"
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
@@ -41,6 +41,30 @@ namespace packets::play {
     writer.write_byte (0);  // max players (unused nowadays)
     writer.write_string ("");  // level type
     writer.write_bool (reduced_dbg_info);
+    return writer;
+  }
+
+  packet_writer
+  make_spawn_position (block_pos pos)
+  {
+    packet_writer writer;
+    writer.write_varlong (OPI_SPAWN_POSITION);
+    writer.write_position (pos);
+    return writer;
+  }
+
+  packet_writer make_player_position_and_look (player_pos pos, player_rot rot,
+                                               unsigned char flags, int teleport_id)
+  {
+    packet_writer writer;
+    writer.write_varlong (OPI_PLAYER_POSITION_AND_LOOK);
+    writer.write_double (pos.x);
+    writer.write_double (pos.y);
+    writer.write_double (pos.z);
+    writer.write_float (rot.yaw);
+    writer.write_float (rot.pitch);
+    writer.write_byte (flags);
+    writer.write_varlong (teleport_id);
     return writer;
   }
 }

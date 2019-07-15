@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/src/world/chunk.cpp" line="103" />
+  </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="Nostalgia" targetName="Nostalgia" />
@@ -24,116 +27,94 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/main.cpp">
+        <entry file="file://$PROJECT_DIR$/include/player/client.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3124">
-              <caret line="142" column="56" selection-start-line="142" selection-start-column="56" selection-end-line="142" selection-end-column="56" />
+            <state relative-caret-position="329">
+              <caret line="68" column="57" selection-start-line="68" selection-start-column="57" selection-end-line="68" selection-end-column="57" />
               <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="880">
-              <caret line="40" column="23" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="23" />
-              <folding>
-                <element signature="e#112#133#0" expanded="true" />
+                <element signature="e#112#140#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/client.cpp">
+        <entry file="file://$PROJECT_DIR$/src/player/client.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="373">
-              <caret line="230" column="32" selection-start-line="230" selection-start-column="32" selection-end-line="230" selection-end-column="32" />
+            <state relative-caret-position="425">
+              <caret line="276" column="59" lean-forward="true" selection-start-line="276" selection-start-column="59" selection-end-line="276" selection-end-column="59" />
               <folding>
-                <element signature="e#53#74#0" expanded="true" />
-                <marker date="1558718203559" expanded="true" signature="4750:5487" ph="..." />
+                <marker date="1563047282740" expanded="true" signature="5260:5997" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/chunk.hpp">
+        <entry file="file://$PROJECT_DIR$/include/network/packet_reader.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="506">
-              <caret line="23" column="8" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
+            <state relative-caret-position="461">
+              <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
               <folding>
-                <element signature="e#110#127#0" expanded="true" />
+                <element signature="e#126#143#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server.hpp">
+        <entry file="file://$PROJECT_DIR$/src/network/packet_reader.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="242">
-              <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
-              <folding>
-                <element signature="e#112#131#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="366">
+              <caret line="60" column="19" lean-forward="true" selection-start-line="60" selection-start-column="19" selection-end-line="60" selection-end-column="19" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/server.cpp">
+        <entry file="file://$PROJECT_DIR$/include/system/consts.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
-              <folding>
-                <element signature="e#53#74#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="176">
+              <caret line="30" column="25" selection-start-line="30" selection-start-column="25" selection-end-line="30" selection-end-column="25" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/world.hpp">
+        <entry file="file://$PROJECT_DIR$/include/world/world.hpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="330">
-              <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
-              <folding>
-                <element signature="e#110#130#0" expanded="true" />
-              </folding>
+              <caret line="19" column="23" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/world.cpp">
+        <entry file="file://$PROJECT_DIR$/src/network/packets.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
+            <state relative-caret-position="-374">
+              <caret line="66" column="39" selection-start-line="66" selection-start-column="39" selection-end-line="66" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/include/network/packets.hpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="109">
               <caret line="19" selection-start-line="19" selection-end-line="19" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/info.hpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="990">
-              <caret line="45" column="2" selection-start-line="45" selection-start-column="2" selection-end-line="45" selection-end-column="2" />
               <folding>
-                <element signature="e#108#127#0" expanded="true" />
+                <element signature="e#114#138#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/consts.hpp">
+        <entry file="file://$PROJECT_DIR$/include/util/position.hpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="10" column="37" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="37" />
+            <state relative-caret-position="462">
+              <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
             </state>
           </provider>
         </entry>
@@ -149,40 +130,62 @@
       <find>write(</find>
       <find>write_int</find>
       <find>this-&gt;server</find>
+      <find>join_world</find>
+      <find>join_Game</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Modules/FindCAF.cmake" />
-        <option value="$PROJECT_DIR$/packet_reader.hpp" />
-        <option value="$PROJECT_DIR$/packet_reader.cpp" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/uuid.hpp" />
-        <option value="$PROJECT_DIR$/packets.hpp" />
-        <option value="$PROJECT_DIR$/packet_writer.hpp" />
-        <option value="$PROJECT_DIR$/packet_writer.cpp" />
-        <option value="$PROJECT_DIR$/packets.cpp" />
-        <option value="$PROJECT_DIR$/chunk.hpp" />
-        <option value="$PROJECT_DIR$/chunk.cpp" />
         <option value="$PROJECT_DIR$/server2.cpp" />
         <option value="$PROJECT_DIR$/server2.hpp" />
         <option value="$PROJECT_DIR$/main.cpp" />
-        <option value="$PROJECT_DIR$/world.hpp" />
-        <option value="$PROJECT_DIR$/world.cpp" />
         <option value="$PROJECT_DIR$/info.hpp" />
         <option value="$PROJECT_DIR$/server.hpp" />
-        <option value="$PROJECT_DIR$/consts.hpp" />
         <option value="$PROJECT_DIR$/server.cpp" />
+        <option value="$PROJECT_DIR$/world.cpp" />
+        <option value="$PROJECT_DIR$/world.hpp" />
+        <option value="$PROJECT_DIR$/chunk.hpp" />
+        <option value="$PROJECT_DIR$/chunk.cpp" />
+        <option value="$PROJECT_DIR$/position.hpp" />
+        <option value="$PROJECT_DIR$/position.cpp" />
         <option value="$PROJECT_DIR$/client.hpp" />
+        <option value="$PROJECT_DIR$/packet_reader.hpp" />
+        <option value="$PROJECT_DIR$/packet_reader.cpp" />
+        <option value="$PROJECT_DIR$/packets.hpp" />
+        <option value="$PROJECT_DIR$/consts.hpp" />
+        <option value="$PROJECT_DIR$/packets.cpp" />
+        <option value="$PROJECT_DIR$/packet_writer.hpp" />
+        <option value="$PROJECT_DIR$/packet_writer.cpp" />
         <option value="$PROJECT_DIR$/client.cpp" />
+        <option value="$PROJECT_DIR$/player/client.cpp" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/include/world/generator.hpp" />
+        <option value="$PROJECT_DIR$/include/system/server.hpp" />
+        <option value="$PROJECT_DIR$/include/world/world.hpp" />
+        <option value="$PROJECT_DIR$/src/system/server.cpp" />
+        <option value="$PROJECT_DIR$/src/world/world.cpp" />
+        <option value="$PROJECT_DIR$/include/world/chunk.hpp" />
+        <option value="$PROJECT_DIR$/src/world/chunk.cpp" />
+        <option value="$PROJECT_DIR$/src/world/generator.cpp" />
+        <option value="$PROJECT_DIR$/src/util/position.cpp" />
+        <option value="$PROJECT_DIR$/src/network/packets.cpp" />
+        <option value="$PROJECT_DIR$/include/network/packets.hpp" />
+        <option value="$PROJECT_DIR$/include/network/packet_reader.hpp" />
+        <option value="$PROJECT_DIR$/include/player/client.hpp" />
+        <option value="$PROJECT_DIR$/include/system/consts.hpp" />
+        <option value="$PROJECT_DIR$/include/util/position.hpp" />
+        <option value="$PROJECT_DIR$/src/network/packet_reader.cpp" />
+        <option value="$PROJECT_DIR$/src/player/client.cpp" />
       </list>
     </option>
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="6" />
+    <option name="y" value="7" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
   </component>
@@ -191,6 +194,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -201,13 +205,77 @@
             <path>
               <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
               <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
-              <item name="external" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="network" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="player" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="system" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="include" type="462c0819:PsiDirectoryNode" />
+              <item name="world" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="network" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="player" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="system" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Nostalgia" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Nostalgia" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="world" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -218,8 +286,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="E:\Projects\C++\Nostalgia\external\include" />
-      <recent name="E:\Projects\C++\Nostalgia\cmake" />
+      <recent name="E:\Projects\C++\Nostalgia\src" />
+      <recent name="E:\Projects\C++\Nostalgia\include\network" />
+      <recent name="E:\Projects\C++\Nostalgia\include\player" />
+      <recent name="E:\Projects\C++\Nostalgia\include\system" />
+      <recent name="E:\Projects\C++\Nostalgia\include\util" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -258,12 +329,19 @@
       <workItem from="1557495332791" duration="6125000" />
       <workItem from="1558183409072" duration="7726000" />
       <workItem from="1558713603104" duration="4921000" />
-      <workItem from="1559326194978" duration="455000" />
+      <workItem from="1559326194978" duration="1390000" />
+      <workItem from="1562254920615" duration="5359000" />
+      <workItem from="1562333509221" duration="10051000" />
+      <workItem from="1562427206729" duration="7374000" />
+      <workItem from="1562882603927" duration="6270000" />
+      <workItem from="1562929236301" duration="1461000" />
+      <workItem from="1563035543619" duration="783000" />
+      <workItem from="1563036383514" duration="5815000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69535000" />
+    <option name="totallyTimeSpent" value="107583000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -275,13 +353,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.26812366" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.28944564" />
       <window_info anchor="bottom" id="Version Control" order="0" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="1" visible="true" weight="0.32936078" />
+      <window_info anchor="bottom" id="Terminal" order="1" weight="0.32936078" />
       <window_info anchor="bottom" id="Event Log" order="2" sideWeight="0.5010661" side_tool="true" weight="0.32936078" />
       <window_info anchor="bottom" id="Database Changes" order="3" />
       <window_info anchor="bottom" id="Messages" order="4" sideWeight="0.4989339" weight="0.32936078" />
@@ -289,7 +367,7 @@
       <window_info anchor="bottom" id="Find" order="6" />
       <window_info anchor="bottom" id="Debug" order="7" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="8" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Run" order="9" sideWeight="0.4989339" visible="true" weight="0.32936078" />
+      <window_info anchor="bottom" id="Run" order="9" sideWeight="0.4989339" weight="0.32936078" />
       <window_info anchor="bottom" id="CMake" order="10" weight="0.32936078" />
       <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="12" weight="0.32936078" />
@@ -362,18 +440,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Downloads/json.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-338935" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packet_reader.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="109">
-          <caret line="84" column="40" selection-start-line="84" selection-start-column="40" selection-end-line="84" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/Downloads/json.hpp" />
     <entry file="file://C:/Program Files/caf/include/caf/actor.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="110">
@@ -396,16 +463,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
           <caret line="141" column="7" selection-start-line="141" selection-start-column="7" selection-end-line="141" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packet_reader.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="836">
-          <caret line="41" selection-start-line="41" selection-end-line="41" />
-          <folding>
-            <element signature="e#126#143#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -451,13 +508,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="66">
-          <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/Program Files/caf/include/caf/make_message.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="423">
@@ -472,57 +522,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Program Files/caf/include/caf/data_processor.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="524" selection-start-line="524" selection-end-line="524" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/uuid.hpp">
+    <entry file="file://$PROJECT_DIR$/include/util/uuid.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
           <caret line="50" column="27" lean-forward="true" selection-start-line="50" selection-start-column="27" selection-end-line="50" selection-end-column="27" />
           <folding>
             <element signature="e#108#130#0" expanded="true" />
             <element signature="e#661#681#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packet_writer.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="550">
-          <caret line="25" column="2" selection-start-line="25" selection-start-column="2" selection-end-line="25" selection-end-column="29" />
-          <folding>
-            <element signature="e#126#145#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packet_writer.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="16" column="1" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
-          <folding>
-            <element signature="e#53#81#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/chunk.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="110">
-          <caret line="5" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packets.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2398">
-          <caret line="109" column="3" selection-start-line="109" selection-start-column="3" selection-end-line="109" selection-end-column="3" />
-          <folding>
-            <element signature="e#53#75#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -539,10 +545,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/packets.hpp">
+    <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="66">
-          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        <state relative-caret-position="329">
+          <caret line="142" column="56" selection-start-line="142" selection-start-column="56" selection-end-line="142" selection-end-column="56" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/network/packet_writer.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1430">
+          <caret line="65" column="39" selection-start-line="65" selection-start-column="39" selection-end-line="65" selection-end-column="39" />
+          <folding>
+            <element signature="e#53#81#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/network/packet_writer.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="638">
+          <caret line="29" column="15" selection-start-line="29" selection-start-column="15" selection-end-line="29" selection-end-column="15" />
+          <folding>
+            <element signature="e#126#145#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/system/info.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="28" selection-start-line="28" selection-end-line="33" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/system/server.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="25" column="20" selection-start-line="25" selection-start-column="20" selection-end-line="25" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/world/generator.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="4" column="31" lean-forward="true" selection-start-line="4" selection-start-column="31" selection-end-line="4" selection-end-column="31" />
         </state>
       </provider>
     </entry>
@@ -553,104 +610,156 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Program Files/caf/include/caf/make_actor.hpp">
+    <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/include/xmemory0">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="198">
+          <caret line="880" selection-start-line="880" selection-end-line="880" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/caf/include/caf/data_processor.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="198">
+          <caret line="246" selection-start-line="246" selection-end-line="246" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/system/server.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+          <folding>
+            <element signature="e#53#81#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/world/world.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="15" column="23" selection-start-line="15" selection-start-column="23" selection-end-line="15" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files/caf/include/caf/make_actor.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="726">
           <caret line="33" selection-start-line="33" selection-end-line="33" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.cpp">
+    <entry file="file://$PROJECT_DIR$/include/world/chunk.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3124">
-          <caret line="142" column="56" selection-start-line="142" selection-start-column="56" selection-end-line="142" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="880">
-          <caret line="40" column="23" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="23" />
-          <folding>
-            <element signature="e#112#133#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/chunk.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="23" column="8" selection-start-line="23" selection-start-column="8" selection-end-line="23" selection-end-column="8" />
+        <state relative-caret-position="22">
+          <caret line="22" column="14" selection-start-line="22" selection-start-column="14" selection-end-line="22" selection-end-column="14" />
           <folding>
             <element signature="e#110#127#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server.hpp">
+    <entry file="file://$PROJECT_DIR$/src/world/generator.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
+        <state relative-caret-position="682">
+          <caret line="31" selection-start-line="31" selection-end-line="31" />
           <folding>
-            <element signature="e#112#131#0" expanded="true" />
+            <element signature="e#53#83#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server.cpp">
+    <entry file="file://$PROJECT_DIR$/src/util/position.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
-          <folding>
-            <element signature="e#53#74#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="286">
+          <caret line="13" column="44" selection-start-line="13" selection-start-column="44" selection-end-line="13" selection-end-column="44" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/world.hpp">
+    <entry file="file://$PROJECT_DIR$/src/world/chunk.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4290">
+          <caret line="195" column="32" selection-start-line="195" selection-start-column="32" selection-end-line="195" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/world/world.hpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
-          <caret line="15" column="1" selection-start-line="15" selection-start-column="1" selection-end-line="15" selection-end-column="1" />
-          <folding>
-            <element signature="e#110#130#0" expanded="true" />
-          </folding>
+          <caret line="19" column="23" selection-start-line="19" selection-start-column="23" selection-end-line="19" selection-end-column="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/world.cpp">
+    <entry file="file://$PROJECT_DIR$/include/network/packets.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
+        <state relative-caret-position="109">
           <caret line="19" selection-start-line="19" selection-end-line="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/info.hpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="990">
-          <caret line="45" column="2" selection-start-line="45" selection-start-column="2" selection-end-line="45" selection-end-column="2" />
           <folding>
-            <element signature="e#108#127#0" expanded="true" />
+            <element signature="e#114#138#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/consts.hpp">
+    <entry file="file://$PROJECT_DIR$/include/system/consts.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="10" column="37" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="37" />
+        <state relative-caret-position="176">
+          <caret line="30" column="25" selection-start-line="30" selection-start-column="25" selection-end-line="30" selection-end-column="25" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client.cpp">
+    <entry file="file://$PROJECT_DIR$/include/util/position.hpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="373">
-          <caret line="230" column="32" selection-start-line="230" selection-start-column="32" selection-end-line="230" selection-end-column="32" />
+        <state relative-caret-position="462">
+          <caret line="57" lean-forward="true" selection-start-line="57" selection-end-line="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/player/client.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="68" column="57" selection-start-line="68" selection-start-column="57" selection-end-line="68" selection-end-column="57" />
           <folding>
-            <element signature="e#53#74#0" expanded="true" />
-            <marker date="1558718203559" expanded="true" signature="4750:5487" ph="..." />
+            <element signature="e#112#140#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/include/network/packet_reader.hpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="461">
+          <caret line="47" column="16" selection-start-line="47" selection-start-column="16" selection-end-line="47" selection-end-column="16" />
+          <folding>
+            <element signature="e#126#143#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/network/packets.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-374">
+          <caret line="66" column="39" selection-start-line="66" selection-start-column="39" selection-end-line="66" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.16.27023/include/stdint.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="484">
+          <caret line="32" column="16" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/network/packet_reader.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="60" column="19" lean-forward="true" selection-start-line="60" selection-start-column="19" selection-end-line="60" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/player/client.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="276" column="59" lean-forward="true" selection-start-line="276" selection-start-column="59" selection-end-line="276" selection-end-column="59" />
+          <folding>
+            <marker date="1563047282740" expanded="true" signature="5260:5997" ph="..." />
           </folding>
         </state>
       </provider>

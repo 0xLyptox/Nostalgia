@@ -5,8 +5,9 @@
 #ifndef NOSTALGIA_CLIENT_HPP
 #define NOSTALGIA_CLIENT_HPP
 
-#include "consts.hpp"
-#include "info.hpp"
+#include "system/consts.hpp"
+#include "system/info.hpp"
+#include "util/position.hpp"
 #include "caf/all.hpp"
 
 // forward decs:
@@ -39,10 +40,13 @@ class client : public caf::event_based_actor
   client_info info;
 
   world_info curr_world;
+  player_pos pos;
+  player_rot rot;
+  bool ground = true;
 
  public:
   explicit client (caf::actor_config& cfg, const caf::actor& srv,
-                         unsigned int client_id);
+                   unsigned int client_id);
 
   caf::behavior make_behavior () override;
 
@@ -58,6 +62,12 @@ class client : public caf::event_based_actor
 
   void handle_login_start_packet (packet_reader& reader);
 
+  void handle_client_settings_packet (packet_reader& reader);
+  void handle_player_packet (packet_reader& reader);
+  void handle_player_position_packet (packet_reader& reader);
+  void handle_player_position_and_look_packet (packet_reader& reader);
+  void handle_player_look_packet (packet_reader& reader);
+
 
   /*!
    * \brief Sends the contents of the specified packet writer.
@@ -69,6 +79,8 @@ class client : public caf::event_based_actor
   void send_packet (packet_writer&& writer);
 
   void join_world (const std::string& world_name);
+
+  void update_position (player_pos pos, player_rot rot, bool ground);
 };
 
 #endif //NOSTALGIA_CLIENT_HPP

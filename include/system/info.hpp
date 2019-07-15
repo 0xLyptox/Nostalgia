@@ -5,7 +5,7 @@
 #ifndef NOSTALGIA_INFO_HPP
 #define NOSTALGIA_INFO_HPP
 
-#include "uuid.hpp"
+#include "util/uuid.hpp"
 #include <string>
 #include <caf/all.hpp>
 

@@ -5,8 +5,8 @@
 #ifndef NOSTALGIA_PACKETS_HPP
 #define NOSTALGIA_PACKETS_HPP
 
-#include "uuid.hpp"
-#include "packet_writer.hpp"
+#include "util/uuid.hpp"
+#include "network/packet_writer.hpp"
 #include <string>
 
 
@@ -15,6 +15,11 @@ namespace packets::play {
   packet_writer make_disconnect (const std::string& msg);
 
   packet_writer make_join_game (int entity_id, int gamemode, int dimension, int difficulty, bool reduced_dbg_info);
+
+  packet_writer make_spawn_position (block_pos pos);
+
+  packet_writer make_player_position_and_look (player_pos pos, player_rot rot,
+      unsigned char flags, int teleport_id);
 }
 
 namespace packets::status {

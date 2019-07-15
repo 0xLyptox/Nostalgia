@@ -2,9 +2,10 @@
 // Created by Jacob Zhitomirsky on 09-May-19.
 //
 
-#include "server.hpp"
-#include "world.hpp"
-#include "consts.hpp"
+#include "system/server.hpp"
+#include "world/world.hpp"
+#include "system/consts.hpp"
+#include "world/generator.hpp"
 
 
 server::server (caf::actor_config& cfg)
@@ -17,8 +18,11 @@ server::server (caf::actor_config& cfg)
 void
 server::setup ()
 {
+  // spawn world generator actor
+  this->world_gen = this->system ().spawn<world_generator> ();
+
   // spawn main world
-  auto main_world = this->system ().spawn<world> (main_world_name);
+  auto main_world = this->system ().spawn<world> (main_world_name, this->world_gen);
   world_info info = { main_world, main_world_name };
   this->worlds[main_world_name] = info;
 }
