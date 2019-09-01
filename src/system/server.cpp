@@ -5,7 +5,9 @@
 #include "system/server.hpp"
 #include "world/world.hpp"
 #include "system/consts.hpp"
-#include "world/generator.hpp"
+#include "world/generator_actor.hpp"
+#include "network/packets.hpp"
+#include "world/blocks.hpp"
 
 
 server::server (caf::actor_config& cfg)
@@ -18,8 +20,11 @@ server::server (caf::actor_config& cfg)
 void
 server::setup ()
 {
+  // load blocks
+  block::initialize ();
+
   // spawn world generator actor
-  this->world_gen = this->system ().spawn<world_generator> ();
+  this->world_gen = this->system ().spawn<world_generator_actor> ();
 
   // spawn main world
   auto main_world = this->system ().spawn<world> (main_world_name, this->world_gen);
@@ -71,6 +76,16 @@ server::make_behavior ()
         if (itr == this->worlds.end ())
           return world_info {};
         return itr->second;
+      },
+
+      [this] (caf::atom_constant<caf::atom ("globmsg")>, const std::string& msg) {
+        auto packet = packets::play::make_chat_message_simple (msg, 0);
+        std::vector<char> packet_buf = packet.move_data ();
+        for (auto& p : this->connected_clients)
+          {
+            auto& cl = p.second.actor;
+            this->send (cl, caf::atom ("packetout"), packet_buf);
+          }
       }
   };
 }

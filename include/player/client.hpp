@@ -9,6 +9,8 @@
 #include "system/info.hpp"
 #include "util/position.hpp"
 #include "caf/all.hpp"
+#include <set>
+#include <utility>
 
 // forward decs:
 class packet_reader;
@@ -43,6 +45,13 @@ class client : public caf::event_based_actor
   player_pos pos;
   player_rot rot;
   bool ground = true;
+  chunk_pos last_cpos = { -0x13371337, 0x13371337 };
+
+  double last_tick_time = 0.0;
+  bool first_tick = true;
+  uint64_t elapsed_ticks = 0;
+  double time_since_keep_alive = 0;
+  uint32_t keep_alive_id = (uint32_t)-1;
 
  public:
   explicit client (caf::actor_config& cfg, const caf::actor& srv,
@@ -62,11 +71,14 @@ class client : public caf::event_based_actor
 
   void handle_login_start_packet (packet_reader& reader);
 
+  void handle_chat_message_packet (packet_reader& reader);
   void handle_client_settings_packet (packet_reader& reader);
+  void handle_keep_alive_packet (packet_reader& reader);
   void handle_player_packet (packet_reader& reader);
   void handle_player_position_packet (packet_reader& reader);
   void handle_player_position_and_look_packet (packet_reader& reader);
   void handle_player_look_packet (packet_reader& reader);
+  void handle_player_digging_packet (packet_reader& reader);
 
 
   /*!
@@ -81,6 +93,18 @@ class client : public caf::event_based_actor
   void join_world (const std::string& world_name);
 
   void update_position (player_pos pos, player_rot rot, bool ground);
+
+  /*!
+   * \brief Tick function that is called every second.
+   */
+  void tick ();
+
+  void call_tick ();
+
+  /*!
+   * \brief Loads or unloads new/old chunks based on the player's position.
+   */
+  void update_chunks ();
 };
 
 #endif //NOSTALGIA_CLIENT_HPP

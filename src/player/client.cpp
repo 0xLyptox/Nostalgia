@@ -7,6 +7,7 @@
 #include "network/packet_writer.hpp"
 #include "system/consts.hpp"
 #include "network/packets.hpp"
+#include <chrono>
 
 
 client::client (caf::actor_config& cfg, const caf::actor& srv,
@@ -29,7 +30,7 @@ client::make_behavior ()
       //
       // Whole packets received from the client's associated broker.
       //
-      [this] (caf::atom_constant<caf::atom ("packet")>, std::vector<char> buf) {
+      [this] (caf::atom_constant<caf::atom ("packetin")>, std::vector<char> buf) {
         try
           {
             packet_reader reader (buf);
@@ -50,6 +51,10 @@ client::make_behavior ()
             else
               this->quit (caf::exit_reason::user_shutdown);
           }
+      },
+
+      [this] (caf::atom_constant<caf::atom ("packetout")>, std::vector<char> buf) {
+        return this->delegate (this->broker, caf::atom ("packet"), buf);
       }
   };
 }
@@ -71,7 +76,7 @@ client::send_packet (packet_writer&& writer)
 void
 client::handle_packet (packet_reader& reader)
 {
-  caf::aout (this) << "Received packet of size " << reader.size () << std::endl;
+  //caf::aout (this) << "Received packet of size " << reader.size () << std::endl;
 
   switch (this->curr_state)
     {
@@ -118,10 +123,19 @@ void
 client::handle_play_state_packet (packet_reader& reader)
 {
   auto id = reader.read_varlong ();
+  //caf::aout (this) << "PLAY packet: " << id << std::endl;
   switch (id)
     {
+    case IPI_CHAT_MESSAGE:
+      this->handle_chat_message_packet (reader);
+      break;
+
     case IPI_CLIENT_SETTINGS:
       this->handle_client_settings_packet (reader);
+      break;
+
+    case IPI_KEEP_ALIVE:
+      this->handle_keep_alive_packet (reader);
       break;
 
     case IPI_PLAYER:
@@ -138,6 +152,10 @@ client::handle_play_state_packet (packet_reader& reader)
 
     case IPI_PLAYER_LOOK:
       this->handle_player_look_packet (reader);
+      break;
+
+   case IPI_PLAYER_DIGGING:
+      this->handle_player_digging_packet (reader);
       break;
 
     default:
@@ -232,12 +250,22 @@ client::handle_login_start_packet (packet_reader& reader)
         // transition into PLAY state.
         this->curr_state = connection_state::play;
         this->send_packet (packets::login::make_login_success (this->info.uuid, username));
-        this->send_packet (packets::play::make_join_game (1, 1, 0, 0, false));
+        this->send_packet (packets::play::make_join_game (1, 1, 0, false, 2));
 
         this->join_world (main_world_name);
       });
 }
 
+
+void
+client::handle_chat_message_packet (packet_reader& reader)
+{
+  auto msg = reader.read_string (256);
+
+  auto out_msg = this->info.username + ": " + msg;
+
+  this->send (this->srv, caf::atom ("globmsg"), out_msg);
+}
 
 void
 client::handle_client_settings_packet (packet_reader& reader)
@@ -251,33 +279,36 @@ client::handle_client_settings_packet (packet_reader& reader)
 
 }
 
-void client::handle_player_packet (packet_reader& reader)
+void
+client::handle_keep_alive_packet (packet_reader& reader)
+{
+  auto id = (uint64_t)reader.read_long ();
+  if (id != this->keep_alive_id)
+    throw disconnect ("Keep alive ID mismatch");
+
+  this->keep_alive_id = (uint32_t)-1;
+  this->time_since_keep_alive = 0;
+}
+
+void
+client::handle_player_packet (packet_reader& reader)
 {
   bool ground = reader.read_bool ();
   this->update_position (this->pos, this->rot, ground);
 }
 
-inline void
-swap (unsigned char& a, unsigned char& b)
-{
-  unsigned char t = a;
-  a = b;
-  b = t;
-}
-
-void client::handle_player_position_packet (packet_reader& reader)
+void
+client::handle_player_position_packet (packet_reader& reader)
 {
   double x = reader.read_double ();
-  caf::aout (this) << "x: " << x << std::endl;
-
-//  double x = reader.read_double ();
-//  double y = reader.read_double ();
-//  double z = reader.read_double ();
-//  bool ground = reader.read_bool ();
-//  this->update_position ({ x, y, z }, this->rot, ground);
+  double y = reader.read_double ();
+  double z = reader.read_double ();
+  bool ground = reader.read_bool ();
+  this->update_position ({ x, y, z }, this->rot, ground);
 }
 
-void client::handle_player_position_and_look_packet (packet_reader& reader)
+void
+client::handle_player_position_and_look_packet (packet_reader& reader)
 {
   double x = reader.read_double ();
   double y = reader.read_double ();
@@ -288,7 +319,8 @@ void client::handle_player_position_and_look_packet (packet_reader& reader)
   this->update_position ({ x, y, z }, { yaw, pitch }, ground);
 }
 
-void client::handle_player_look_packet (packet_reader& reader)
+void
+client::handle_player_look_packet (packet_reader& reader)
 {
   float yaw = reader.read_float ();
   float pitch = reader.read_float ();
@@ -296,6 +328,17 @@ void client::handle_player_look_packet (packet_reader& reader)
   this->update_position (this->pos, { yaw, pitch }, ground);
 }
 
+void
+client::handle_player_digging_packet (packet_reader& reader)
+{
+  auto status = (int)reader.read_varlong ();
+  block_pos pos = reader.read_position ();
+  char face = reader.read_byte ();
+
+  caf::aout (this) << "Digging at (" << pos.x << ", " << pos.y << ", " << pos.z << ") [Status: " << status << ", Face: " << (int)face << "]" << std::endl;
+
+  this->send (this->curr_world.actor, caf::atom ("setblock"), pos, (unsigned short)0);
+}
 
 
 
@@ -309,17 +352,12 @@ client::join_world (const std::string& world_name)
         caf::aout (this) << "Got world information of \"" << info.name << "\" from server." << std::endl;
         this->curr_world = info;
 
+        this->pos = player_pos (0, 66.0, 0);
+
         // send initial chunks
-        chunk_pos cpos = this->pos;
-        for (int cx = cpos.x; cx <= cpos.x; ++cx)
-          for (int cz = cpos.z; cz <= cpos.z; ++cz)
-            {
-              // request chunk data from world
-              this->send (this->curr_world.actor, caf::atom ("reqcdata"), cx, cz, this->broker);
-            }
+        this->update_chunks ();
 
         // spawn player
-        this->pos = player_pos (0, 130.0, 0);
         this->send_packet (packets::play::make_spawn_position (this->pos));
         this->send_packet (packets::play::make_player_position_and_look (
             this->pos, this->rot, 0, 1));
@@ -333,7 +371,91 @@ client::update_position (player_pos pos, player_rot rot, bool ground)
   this->rot = rot;
   this->ground = ground;
 
-  caf::aout (this) << "Position: " << pos.x << ", " << pos.y << ", " << pos.z << " : " << rot.yaw << ", " << rot.pitch << std::endl;
+  this->call_tick ();
+  this->update_chunks ();
+}
 
-  caf::aout (this) << " - " << *(uint64_t *)&pos.y << std::endl;
+void
+client::call_tick ()
+{
+  double this_time = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::high_resolution_clock::now ().time_since_epoch ()).count () / 1000.0;
+  if (this->first_tick)
+    {
+      this->last_tick_time = this_time;
+      this->first_tick = false;
+      return;
+    }
+
+  double elapsed = this_time - this->last_tick_time;
+  if (elapsed >= 1.0)
+    {
+      this->last_tick_time = this_time;
+      this->tick ();
+    }
+}
+
+/*!
+ * \brief Tick function that is called every second.
+ */
+void
+client::tick ()
+{
+  ++ this->elapsed_ticks;
+
+  this->time_since_keep_alive += 1.0;
+  if (this->time_since_keep_alive >= 5.0)
+    {
+      if (this->keep_alive_id == (uint32_t)-1)
+        {
+          // send keep alive
+          this->keep_alive_id = (uint32_t)this->elapsed_ticks;
+          this->time_since_keep_alive = 0.0;
+          this->send_packet (packets::play::make_keep_alive (this->keep_alive_id));
+        }
+      else
+      {
+        // did not get response to keep alive: disconnect client
+        throw disconnect ("Timed out");
+      }
+    }
+}
+
+
+/*!
+ * \brief Loads or unloads new/old chunks based on the player's position.
+ */
+void
+client::update_chunks ()
+{
+  chunk_pos pos = this->pos;
+  if (pos == this->last_cpos)
+    return;
+
+  // unload prev chunks
+  for (int x = this->last_cpos.x - chunk_radius; x <= this->last_cpos.x + chunk_radius; ++x)
+  for (int z = this->last_cpos.z - chunk_radius; z <= this->last_cpos.z + chunk_radius; ++z)
+    {
+      if (x < pos.x - chunk_radius || x > pos.x + chunk_radius ||
+          z < pos.z - chunk_radius || z > pos.z + chunk_radius)
+        {
+          // chunk outside chunk radius
+          //caf::aout (this) << "Unloading chunk: " << x << "," << z << std::endl;
+          this->send_packet (packets::play::make_unload_chunk (x, z));
+        }
+    }
+
+  // load new chunks
+  for (int x = pos.x - chunk_radius; x <= pos.x + chunk_radius; ++x)
+  for (int z = pos.z - chunk_radius; z <= pos.z + chunk_radius; ++z)
+    {
+      auto key = std::make_pair (x, z);
+      if (x < this->last_cpos.x - chunk_radius || x > this->last_cpos.x + chunk_radius ||
+          z < this->last_cpos.z - chunk_radius || z > this->last_cpos.z + chunk_radius)
+        {
+          //caf::aout (this) << "Sending chunk " << x << "," << z << std::endl;
+          this->send (this->curr_world.actor, caf::atom ("reqcdata"), x, z, this->broker);
+        }
+    }
+
+  this->last_cpos = pos;
 }

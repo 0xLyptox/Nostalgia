@@ -11,6 +11,9 @@
 #include <cstdint>
 
 
+// forward decs:
+class nbt_writer;
+
 class packet_writer
 {
   std::vector<char> buf;
@@ -23,17 +26,18 @@ class packet_writer
   inline std::vector<char>&& move_data () { return std::move (buf); }
 
   void write_bool (bool val);
-  void write_byte (int8_t val);
-  void write_short (int16_t val);
-  void write_int (int32_t val);
-  void write_long (int64_t val);
-  void write_varlong (int64_t val);
+  void write_byte (uint8_t val);
+  void write_short (uint16_t val);
+  void write_int (uint32_t val);
+  void write_long (uint64_t val);
+  void write_varlong (uint64_t val);
   void write_float (float val);
   void write_double (double val);
   void write_bytes (const void *data, unsigned int len);
   void write_string (const std::string& str);
   void write_uuid_string (const uuid_t& uuid);
   void write_position (block_pos pos);
+  void write_nbt (const nbt_writer& writer);
 };
 
 //! \brief Returns the size in bytes of a specified varlong.

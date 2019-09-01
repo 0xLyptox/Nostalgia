@@ -12,9 +12,15 @@
 
 namespace packets::play {
 
+  packet_writer make_chat_message_simple (const std::string& msg, char position);
+
   packet_writer make_disconnect (const std::string& msg);
 
-  packet_writer make_join_game (int entity_id, int gamemode, int dimension, int difficulty, bool reduced_dbg_info);
+  packet_writer make_unload_chunk (int x, int z);
+
+  packet_writer make_keep_alive (uint64_t id);
+
+  packet_writer make_join_game (int entity_id, int gamemode, int dimension, bool reduced_dbg_info, int view_distance);
 
   packet_writer make_spawn_position (block_pos pos);
 

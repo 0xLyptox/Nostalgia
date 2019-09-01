@@ -33,6 +33,7 @@ class bad_data_error : public std::exception
 class packet_reader
 {
   const std::vector<char>& buf;
+  const unsigned char *data;
   unsigned int pos;
 
  public:
@@ -51,6 +52,7 @@ class packet_reader
   double read_double ();
   std::string read_string (unsigned max_size = 0);
   block_pos read_position ();
+  void read_bytes (void *out, unsigned int len);
 
   inline uint8_t read_unsigned_byte () { return (uint8_t)this->read_byte (); }
   inline uint16_t read_unsigned_short () { return (uint16_t)this->read_short (); }

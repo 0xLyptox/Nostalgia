@@ -20,6 +20,12 @@ struct chunk_pos
   chunk_pos (const block_pos& bpos);
   chunk_pos (const player_pos& pos);
   chunk_pos (const chunk_pos& pos) = default;
+
+  inline bool operator== (const chunk_pos& other) const
+  { return this->x == other.x && this->z == other.z; }
+
+  inline bool operator!= (const chunk_pos& other) const
+  { return !this->operator== (other); }
 };
 
 struct block_pos

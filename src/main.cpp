@@ -8,6 +8,7 @@
 #include "system/server.hpp"
 #include "network/packet_writer.hpp"
 
+
 class nostalgia_config : public caf::actor_system_config
 {
  public:
@@ -59,7 +60,7 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
       if (state->waiting_for_packet_data)
         {
           // relay packet contents to associated client actor.
-          self->send (state->cl, caf::atom ("packet"), msg.buf);
+          self->send (state->cl, caf::atom ("packetin"), msg.buf);
 
           // reset state for next packet
           self->configure_read (hdl, caf::io::receive_policy::exactly (1));

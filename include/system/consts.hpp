@@ -5,10 +5,13 @@
 #ifndef NOSTALGIA_CONSTS_HPP
 #define NOSTALGIA_CONSTS_HPP
 
-constexpr const char *current_version_name = "1.13.2";
-constexpr int current_procotol_version = 404;
+constexpr const char *current_version_name = "1.14.4";
+constexpr int current_procotol_version = 498;
 
 constexpr const char *main_world_name = "Main";
+
+constexpr int chunk_radius = 4;
+constexpr int max_lighting_updates = 1024;
 
 
 enum class connection_state
@@ -25,11 +28,14 @@ enum in_packet_id
   IPI_HANDSHAKE = 0x00,
 
   // play state
-  IPI_CLIENT_SETTINGS = 0x04,
-  IPI_PLAYER = 0x0F,
-  IPI_PLAYER_POSITION = 0x10,
-  IPI_PLAYER_POSITION_AND_LOOK = 0x11,
-  IPI_PLAYER_LOOK = 0x12,
+  IPI_CHAT_MESSAGE = 0x03,
+  IPI_CLIENT_SETTINGS = 0x05,
+  IPI_KEEP_ALIVE = 0x0F,
+  IPI_PLAYER = 0x10,
+  IPI_PLAYER_POSITION = 0x11,
+  IPI_PLAYER_POSITION_AND_LOOK = 0x12,
+  IPI_PLAYER_LOOK = 0x13,
+  IPI_PLAYER_DIGGING = 0x1A,
 
   // status state
   IPI_REQUEST = 0x00,
@@ -42,11 +48,14 @@ enum in_packet_id
 enum out_packet_id
 {
   // play state
-  OPI_DISCONNECT = 0x1B,
-  OPI_CHUNK_DATA = 0x22,
+  OPI_CHAT_MESSAGE = 0x0E,
+  OPI_DISCONNECT = 0x1A,
+  OPI_UNLOAD_CHUNK = 0x1D,
+  OPI_KEEP_ALIVE = 0x20,
+  OPI_CHUNK_DATA = 0x21,
   OPI_JOIN_GAME = 0x25,
-  OPI_PLAYER_POSITION_AND_LOOK = 0x32,
-  OPI_SPAWN_POSITION = 0x49,
+  OPI_PLAYER_POSITION_AND_LOOK = 0x35,
+  OPI_SPAWN_POSITION = 0x4D,
 
   // status state
   OPI_RESPONSE = 0x00,

@@ -12,6 +12,21 @@ using json = nlohmann::json;
 namespace packets::play {
 
   packet_writer
+  make_chat_message_simple (const std::string& msg, char position)
+  {
+    packet_writer writer;
+    writer.write_varlong (OPI_CHAT_MESSAGE);
+
+    json j = {
+        {"text", msg}
+    };
+    writer.write_string (j.dump ());
+    writer.write_byte ((unsigned char)position);
+
+    return writer;
+  }
+
+  packet_writer
   make_disconnect (const std::string& msg)
   {
     packet_writer writer;
@@ -26,20 +41,35 @@ namespace packets::play {
   }
 
   packet_writer
-  make_join_game (int entity_id, int gamemode, int dimension, int difficulty, bool reduced_dbg_info)
+  make_unload_chunk (int x, int z)
   {
-    //
-    // TODO: Figure out how to encode this packet properly because it looks
-    //       like it changed in 1.14.
-    //
+    packet_writer writer;
+    writer.write_varlong (OPI_UNLOAD_CHUNK);
+    writer.write_int (x);
+    writer.write_int (z);
+    return writer;
+  }
+
+  packet_writer
+  make_keep_alive (uint64_t id)
+  {
+    packet_writer writer;
+    writer.write_varlong (OPI_KEEP_ALIVE);
+    writer.write_long (id);
+    return writer;
+  }
+
+  packet_writer
+  make_join_game (int entity_id, int gamemode, int dimension, bool reduced_dbg_info, int view_distance)
+  {
     packet_writer writer;
     writer.write_varlong (OPI_JOIN_GAME);
     writer.write_int (entity_id);
     writer.write_byte ((int8_t)gamemode);
     writer.write_int (dimension);
-    writer.write_byte ((int8_t)difficulty);
     writer.write_byte (0);  // max players (unused nowadays)
     writer.write_string ("");  // level type
+    writer.write_varlong (view_distance);
     writer.write_bool (reduced_dbg_info);
     return writer;
   }

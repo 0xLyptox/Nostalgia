@@ -1,0 +1,12 @@
+﻿Block,Namespaced ID,Numeric ID,Solid,Transparent
+Air,minecraft:air,0,0,1
+Stone,minecraft:stone,1,1,0
+Granite,minecraft:granite,2,1,0
+Polished Granite,minecraft:polished_granite,3,1,0
+Diorite,minecraft:diorite,4,1,0
+Polished Diorite,minecraft:polished_diorite,5,1,0
+Andesite,minecraft:andesite,6,1,0
+Polished Andesite,minecraft:polished_andesite,7,1,0
+Snowy Grass Block,minecraft:snowy_grass_block,8,1,0
+Grass Block,minecraft:grass_block,9,1,0
+Dirt,minecraft:dirt,10,1,0

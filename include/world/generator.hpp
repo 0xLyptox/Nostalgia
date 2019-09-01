@@ -1,24 +1,26 @@
 //
-// Created by Jacob Zhitomirsky on 06-Jul-19.
+// Created by Jacob Zhitomirsky on 06-Aug-19.
 //
 
 #ifndef NOSTALGIA_GENERATOR_HPP
 #define NOSTALGIA_GENERATOR_HPP
 
-#include <caf/all.hpp>
+#include "world/chunk.hpp"
 
 
 /*!
  * \class world_generator
- * \brief A blocking actor that is responsible for generating chunks in its
- *        own separate thread.
+ * \brief Abstract base class for world generator implementations.
  */
-class world_generator : public caf::blocking_actor
+class world_generator
 {
  public:
-  world_generator (caf::actor_config& cfg);
+  //! \brief Returns the name of the generator.
+  [[nodiscard]] virtual const char* get_name () const = 0;
 
-  virtual void act () override;
+  //! \brief Populates the specified chunk.
+  virtual void generate_chunk (int cx, int cz, chunk& ch) = 0;
 };
+
 
 #endif //NOSTALGIA_GENERATOR_HPP
