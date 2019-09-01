@@ -1,6 +1,5 @@
 cmake-build-debug/
 cmake-build-release/
 *.obj
-.idea/workspace.xml
 .idea/usage.statistics.xml
 .idea/tasks.xml
