@@ -12,7 +12,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4483910a-aab1-4cee-87f3-37c6f26fe2bb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/etc/blocks.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/etc/registries.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/system/registries.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/window/slot.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/window/window.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/system/registries.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/window/window.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/etc/Blocks.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/player/client.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/player/client.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/consts.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/consts.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/blocks.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/blocks.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/network/packet_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packet_reader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/player/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/player/client.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/system/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/server.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/blocks.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/blocks.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -27,11 +43,27 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectId" id="1QDDmt1P4UrXEJKN9Z6Qi5p51Zk" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/etc" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\etc" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\include\window" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -63,6 +95,9 @@
       <option name="presentableId" value="Default" />
       <updated>1567296434089</updated>
       <workItem from="1567296435237" duration="312000" />
+      <workItem from="1567297005459" duration="87000" />
+      <workItem from="1567721140501" duration="3440000" />
+      <workItem from="1567768300317" duration="17531000" />
     </task>
     <servers />
   </component>
@@ -74,7 +109,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

@@ -8,6 +8,7 @@
 #include "world/generator_actor.hpp"
 #include "network/packets.hpp"
 #include "world/blocks.hpp"
+#include "system/registries.hpp"
 
 
 server::server (caf::actor_config& cfg)
@@ -20,6 +21,9 @@ server::server (caf::actor_config& cfg)
 void
 server::setup ()
 {
+  // load registries
+  registries::initialize ();
+
   // load blocks
   block::initialize ();
 

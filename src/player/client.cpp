@@ -7,12 +7,15 @@
 #include "network/packet_writer.hpp"
 #include "system/consts.hpp"
 #include "network/packets.hpp"
+#include "system/registries.hpp"
+#include "world/blocks.hpp"
 #include <chrono>
 
 
 client::client (caf::actor_config& cfg, const caf::actor& srv,
                             unsigned int client_id)
-  : event_based_actor (cfg), srv (srv), curr_state (connection_state::handshake)
+  : event_based_actor (cfg), srv (srv), curr_state (connection_state::handshake),
+    inv (window_spec::player_inventory)
 {
   this->info.id = client_id;
 }
@@ -134,6 +137,10 @@ client::handle_play_state_packet (packet_reader& reader)
       this->handle_client_settings_packet (reader);
       break;
 
+    case IPI_CLOSE_WINDOW:
+      this->handle_close_window_packet (reader);
+      break;
+
     case IPI_KEEP_ALIVE:
       this->handle_keep_alive_packet (reader);
       break;
@@ -154,8 +161,20 @@ client::handle_play_state_packet (packet_reader& reader)
       this->handle_player_look_packet (reader);
       break;
 
-   case IPI_PLAYER_DIGGING:
+    case IPI_PLAYER_DIGGING:
       this->handle_player_digging_packet (reader);
+      break;
+
+    case IPI_HELD_ITEM_CHANGE:
+      this->handle_held_item_change (reader);
+      break;
+
+    case IPI_CREATIVE_INVENTORY_ACTION:
+      this->handle_creative_inventory_action_packet (reader);
+      break;
+
+    case IPI_PLAYER_BLOCK_PLACEMENT:
+      this->handle_player_block_placement (reader);
       break;
 
     default:
@@ -280,6 +299,12 @@ client::handle_client_settings_packet (packet_reader& reader)
 }
 
 void
+client::handle_close_window_packet (packet_reader& reader)
+{
+
+}
+
+void
 client::handle_keep_alive_packet (packet_reader& reader)
 {
   auto id = (uint64_t)reader.read_long ();
@@ -338,6 +363,76 @@ client::handle_player_digging_packet (packet_reader& reader)
   caf::aout (this) << "Digging at (" << pos.x << ", " << pos.y << ", " << pos.z << ") [Status: " << status << ", Face: " << (int)face << "]" << std::endl;
 
   this->send (this->curr_world.actor, caf::atom ("setblock"), pos, (unsigned short)0);
+}
+
+void
+client::handle_held_item_change (packet_reader& reader)
+{
+  int idx = (int)reader.read_short ();
+  if (idx < 0 || idx > 8)
+    return;
+
+  this->hand_slot_idx = idx;
+}
+
+void
+client::handle_creative_inventory_action_packet (packet_reader& reader)
+{
+  int idx = reader.read_short ();
+  bool has_slot = reader.read_bool ();
+
+  // allow changes only to the hotbar
+  if (!this->inv.range ("hotbar").contains (idx))
+    return;
+
+  if (has_slot)
+    {
+      // continue reading slot information (we ignore NBT data for now...)
+      auto item_id = (int)reader.read_varlong ();
+      auto item_count = (unsigned char)reader.read_byte ();
+      auto item = std::make_unique<slot> (item_id, item_count);
+      this->inv.set_slot (idx, std::move (item));
+    }
+  else
+    {
+      // empty slot
+      this->inv.clear_slot (idx);
+    }
+}
+
+void
+client::handle_player_block_placement (packet_reader& reader)
+{
+  auto hand = reader.read_varlong ();
+  auto location = reader.read_position ();
+  auto face = reader.read_varlong ();
+  auto cursor_x = reader.read_float ();
+  auto cursor_y = reader.read_float ();
+  auto cursor_z = reader.read_float ();
+  auto inside_block = reader.read_bool ();
+
+  auto item = this->held_item ();
+  if (!item)
+    return; // not holding anything
+
+
+  // use the face value to calculate the position of the block we are going to place
+  auto place_pos = location;
+  switch (face)
+    {
+    case 0: --place_pos.y; break;
+    case 1: ++place_pos.y; break;
+    case 2: --place_pos.z; break;
+    case 3: ++place_pos.z; break;
+    case 4: --place_pos.x; break;
+    case 5: ++place_pos.x; break;
+    default: ;
+    }
+
+  auto& item_name = registries::name (ITEM_REGISTRY, item->id ());
+  auto block_id = (unsigned short)block::find (item_name).get_id ();
+
+  this->send (this->curr_world.actor, caf::atom ("setblock"), place_pos, block_id);
 }
 
 
@@ -458,4 +553,13 @@ client::update_chunks ()
     }
 
   this->last_cpos = pos;
+}
+
+
+
+//! \brief Returns the slot item currently held by the player.
+slot*
+client::held_item ()
+{
+  return this->inv.get_slot ("hotbar", this->hand_slot_idx);
 }

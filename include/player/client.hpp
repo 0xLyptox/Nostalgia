@@ -9,6 +9,7 @@
 #include "system/info.hpp"
 #include "util/position.hpp"
 #include "caf/all.hpp"
+#include "window/window.hpp"
 #include <set>
 #include <utility>
 
@@ -47,6 +48,9 @@ class client : public caf::event_based_actor
   bool ground = true;
   chunk_pos last_cpos = { -0x13371337, 0x13371337 };
 
+  window inv;
+  int hand_slot_idx = 0; // the slot which the player has selected (0-8)
+
   double last_tick_time = 0.0;
   bool first_tick = true;
   uint64_t elapsed_ticks = 0;
@@ -73,12 +77,16 @@ class client : public caf::event_based_actor
 
   void handle_chat_message_packet (packet_reader& reader);
   void handle_client_settings_packet (packet_reader& reader);
+  void handle_close_window_packet (packet_reader& reader);
   void handle_keep_alive_packet (packet_reader& reader);
   void handle_player_packet (packet_reader& reader);
   void handle_player_position_packet (packet_reader& reader);
   void handle_player_position_and_look_packet (packet_reader& reader);
   void handle_player_look_packet (packet_reader& reader);
   void handle_player_digging_packet (packet_reader& reader);
+  void handle_held_item_change (packet_reader& reader);
+  void handle_creative_inventory_action_packet (packet_reader& reader);
+  void handle_player_block_placement (packet_reader& reader);
 
 
   /*!
@@ -105,6 +113,9 @@ class client : public caf::event_based_actor
    * \brief Loads or unloads new/old chunks based on the player's position.
    */
   void update_chunks ();
+
+  //! \brief Returns the slot item currently held by the player.
+  slot* held_item ();
 };
 
 #endif //NOSTALGIA_CLIENT_HPP

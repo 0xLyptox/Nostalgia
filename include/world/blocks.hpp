@@ -6,40 +6,67 @@
 #define NOSTALGIA_BLOCKS_HPP
 
 #include <string>
+#include <map>
 #include <unordered_map>
 #include <vector>
 #include <exception>
 
-
 typedef unsigned short block_id;
 
+//! \brief This defines the maximum amount of properties a block can have at any one time.
+constexpr int max_block_properties = 8;
+
+/*!
+ * \brief Maps between property names and lists of possible values
+ *
+ * NOTE: It's very important that map is used (as opposed to unordered_map) since
+ *       we require that iteration over property names will be sorted in ascending
+ *       order (which is guaranteed by the standard for std::map).
+ */
+using property_map = std::map<std::string, std::vector<std::string>>;
+
 class block_not_found_error : public std::exception {};
+
+struct block_state
+{
+  /*!
+   * The i'th element corresponds to the i'th property acquired from iterating
+   * the block's property map sorted in ascending order. The value it holds is
+   * the index of the property value held by this state in the vector
+   * corresponding to the matching property (in property_map).
+   * I hope what I wrote isn't too hard to understand...
+   */
+  unsigned char properties[max_block_properties];
+  block_id id; // numeric id
+};
 
 class block
 {
   //
   // member fields:
   //
-  block_id id; // numeric id
-  std::string name;  // namespaced id
-  std::string friendly_name;
-  bool solid;
-  bool transparent;
+  std::string name; // namespaced ID
+  property_map properties;
+  std::vector<block_state> states;
+  size_t default_state_idx = 0; // index to default state
+  bool solid = true;
+  bool transparent = false;
 
   //
   // static fields:
   //
   static std::vector<block> block_list;
-  static std::unordered_map<std::string, int> name_map;
+  static std::unordered_map<std::string, size_t> name_map;
 
  public:
-  [[nodiscard]] inline block_id get_id () const { return this->id; }
+  //! \brief Returns the numeric ID of this block's default state.
+  [[nodiscard]] inline block_id get_id () const { return this->states[this->default_state_idx].id; }
+
   [[nodiscard]] inline const std::string& get_name () const { return this->name; }
-  [[nodiscard]] inline const std::string& get_friendly_name () const { return this->friendly_name; }
   [[nodiscard]] inline bool is_solid () const { return this->solid; }
   [[nodiscard]] inline bool is_transparent () const { return this->transparent; }
 
-  block (unsigned short id, const std::string& name, const std::string& friendly_name, bool solid, bool transparent);
+  block (const std::string& name);
 
  public:
   /*!
@@ -54,61 +81,7 @@ class block
   static const block& find (const std::string& name);
 };
 
-//namespace block {
-//
-//  enum BLOCK_ID : unsigned short
-//  {
-//    STONE = 1,
-//    GRANITE,
-//    POLISHED_GRANITE,
-//    DIORITE,
-//    POLISHED_DIORITE,
-//    ANDESITE,
-//    POLISHED_ANDESITE,
-//    SNOWY_GRASS_BLOCK,
-//    GRASS_BLOCK,
-//    DIRT,
-//    COARSE_DIRT,
-//    SNOWY_PODZOL,
-//    PODZOL,
-//    COBBLESTONE,
-//    OAK_PLANKS,
-//    SPRUCE_PLANKS,
-//    BIRCH_PLANKS,
-//    JUNGLE_PLANKS,
-//    ACACIA_PLANKS,
-//    DARK_OAK_PLANKS,
-//    OAK_SAPLING_STAGE_0,
-//    OAK_SAPLING_STAGE_1,
-//    SPRUCE_SAPLING_STAGE_0,
-//    SPRUCE_SAPLING_STAGE_1,
-//    BIRCH_SAPLING_STAGE_0,
-//    BIRCH_SAPLING_STAGE_1,
-//    JUNGLE_SAPLING_STAGE_0,
-//    JUNGLE_SAPLING_STAGE_1,
-//    ACACIA_SAPLING_STAGE_0,
-//    ACACIA_SAPLING_STAGE_1,
-//    DARK_OAK_SAPLING_STAGE_0,
-//    DARK_OAK_SAPLING_STAGE_1,
-//    BEDROCK,
-//    WATER,
-//    FLOWING_WATER_7,
-//    FLOWING_WATER_6,
-//    FLOWING_WATER_5,
-//    FLOWING_WATER_4,
-//    FLOWING_WATER_3,
-//    FLOWING_WATER_2,
-//    FLOWING_WATER_1,
-//    FALLING_FLOWING_WATER_8,
-//    FALLING_FLOWING_WATER_7,
-//    FALLING_FLOWING_WATER_6,
-//    FALLING_FLOWING_WATER_5,
-//    FALLING_FLOWING_WATER_4,
-//    FALLING_FLOWING_WATER_3,
-//    FALLING_FLOWING_WATER_2,
-//    FALLING_FLOWING_WATER_1,
-//  };
-//}
+
 
 //! \brief Returns true if sky light cannot pass through the specified block.
 bool is_opaque_block (unsigned short id);

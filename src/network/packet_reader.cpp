@@ -118,7 +118,6 @@ block_pos
 packet_reader::read_position ()
 {
   auto num = this->read_unsigned_long ();
-  std::cout << "POS: " << num << std::endl;
 
   int x = (int)(num >> 38);
   int z = (int)((num >> 12) & 0x3FFFFFF);
