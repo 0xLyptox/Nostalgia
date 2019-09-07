@@ -12,23 +12,71 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4483910a-aab1-4cee-87f3-37c6f26fe2bb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/etc/blocks.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/etc/registries.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/system/registries.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/window/slot.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/window/window.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/system/registries.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/window/window.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lapi.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lapi.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lauxlib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lauxlib.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lbaselib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lbitlib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lcode.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lcode.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lcorolib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lctype.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lctype.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldblib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldebug.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldebug.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldo.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldo.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ldump.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lfunc.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lfunc.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lgc.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lgc.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/linit.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/liolib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/llex.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/llex.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/llimits.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lmathlib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lmem.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lmem.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/loadlib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lobject.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lobject.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lopcodes.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lopcodes.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/loslib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lparser.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lparser.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lprefix.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lstate.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lstate.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lstring.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lstring.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lstrlib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ltable.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ltable.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ltablib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ltm.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/ltm.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lua.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lua.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lua.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/luac.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/luaconf.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lualib.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lundump.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lundump.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lutf8lib.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lvm.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lvm.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lzio.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/external/lua/lzio.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/etc/Blocks.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/player/client.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/player/client.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/system/consts.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/consts.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/world/blocks.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/blocks.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/network/packet_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packet_reader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/player/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/player/client.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/system/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/server.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/world/blocks.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/blocks.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/external/include/nlohmann/json.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/external/nlohmann_json/include/nlohmann/json.hpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -48,7 +96,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/etc" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/external/lua" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -59,9 +107,12 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\external\lua" />
       <recent name="E:\Projects\C++\Nostalgia\etc" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\external\nlohmann\include\nlohmann" />
+      <recent name="E:\Projects\C++\Nostalgia\external" />
       <recent name="E:\Projects\C++\Nostalgia\include\window" />
     </key>
   </component>
@@ -97,7 +148,7 @@
       <workItem from="1567296435237" duration="312000" />
       <workItem from="1567297005459" duration="87000" />
       <workItem from="1567721140501" duration="3440000" />
-      <workItem from="1567768300317" duration="17531000" />
+      <workItem from="1567768300317" duration="19225000" />
     </task>
     <servers />
   </component>
@@ -116,5 +167,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/player/client.cpp</url>
+          <line>451</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
