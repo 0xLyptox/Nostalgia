@@ -6,6 +6,7 @@
 
 #include "player/client.hpp"
 #include "system/server.hpp"
+#include "system/scripting.hpp"
 #include "network/packet_writer.hpp"
 
 
@@ -107,13 +108,13 @@ struct server_broker_state
 
 caf::behavior
 server_broker_impl (caf::io::broker *self, server_broker_state *state,
-                    const caf::actor& srv)
+                    const caf::actor& srv, const caf::actor& script_eng)
 {
   return {
     [=] (const caf::io::new_connection_msg& msg) {
       caf::aout (self) << "Accepted new connection!" << std::endl;
       auto client_id = state->next_client_id++;
-      auto cl = self->system ().spawn <client> (srv, client_id);
+      auto cl = self->system ().spawn<client> (srv, script_eng, client_id);
 
       state->states.emplace_back (new client_broker_state ());
       auto client_broker_state = state->states.back ().get ();
@@ -133,7 +134,8 @@ server_broker_impl (caf::io::broker *self, server_broker_state *state,
 void
 caf_main (caf::actor_system& system, const nostalgia_config& cfg)
 {
-  auto srv = system.spawn<server> ();
+  auto script_eng = system.spawn<scripting_actor> ();
+  auto srv = system.spawn<server> (script_eng);
 
   // initialize server
   {
@@ -149,7 +151,7 @@ caf_main (caf::actor_system& system, const nostalgia_config& cfg)
   }
 
   auto broker_state = new server_broker_state ();
-  auto server_broker_actor = system.middleman ().spawn_server (server_broker_impl, 25565, broker_state, srv);
+  auto server_broker_actor = system.middleman ().spawn_server (server_broker_impl, 25565, broker_state, srv, script_eng);
   if (!server_broker_actor)
     {
       std::cout << "Failed to spawn server actor: " << system.render (server_broker_actor.error ()) << std::endl;

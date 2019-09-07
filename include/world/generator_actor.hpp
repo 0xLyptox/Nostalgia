@@ -25,7 +25,7 @@ class world_generator_actor : public caf::blocking_actor
  public:
   world_generator_actor (caf::actor_config& cfg);
 
-  virtual void act () override;
+  void act () override;
 };
 
 #endif //NOSTALGIA_GENERATOR_HPP

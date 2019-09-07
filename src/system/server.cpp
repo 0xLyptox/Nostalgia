@@ -9,10 +9,11 @@
 #include "network/packets.hpp"
 #include "world/blocks.hpp"
 #include "system/registries.hpp"
+#include "system/scripting.hpp"
 
 
-server::server (caf::actor_config& cfg)
-    : caf::event_based_actor (cfg)
+server::server (caf::actor_config& cfg, const caf::actor& script_eng)
+    : caf::event_based_actor (cfg), script_eng (script_eng)
 {
   // nop
 }

@@ -19,9 +19,10 @@ class server : public caf::event_based_actor
   std::map<std::string, world_info> worlds;
 
   caf::actor world_gen;
+  caf::actor script_eng;
 
  public:
-  explicit server (caf::actor_config& cfg);
+  explicit server (caf::actor_config& cfg, const caf::actor& script_eng);
 
   caf::behavior make_behavior () override;
 

@@ -10,11 +10,14 @@
 #include "system/registries.hpp"
 #include "world/blocks.hpp"
 #include <chrono>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
 
 
 client::client (caf::actor_config& cfg, const caf::actor& srv,
-                            unsigned int client_id)
-  : event_based_actor (cfg), srv (srv), curr_state (connection_state::handshake),
+                caf::actor script_eng, unsigned int client_id)
+  : event_based_actor (cfg), srv (srv), script_eng (script_eng), curr_state (connection_state::handshake),
     inv (window_spec::player_inventory)
 {
   this->info.id = client_id;
@@ -56,9 +59,15 @@ client::make_behavior ()
           }
       },
 
-      [this] (caf::atom_constant<caf::atom ("packetout")>, std::vector<char> buf) {
+      [this] (caf::atom_constant<caf::atom ("packetout")>, const std::vector<char>& buf) {
         return this->delegate (this->broker, caf::atom ("packet"), buf);
-      }
+      },
+
+      // messages from scripting engine:
+
+      [this] (caf::atom_constant<caf::atom ("Sgetpos")>, int sid) {
+        this->send (this->script_eng, caf::atom ("Sgetpos"), sid, this->pos, this->rot);
+      },
   };
 }
 
@@ -281,6 +290,13 @@ client::handle_chat_message_packet (packet_reader& reader)
 {
   auto msg = reader.read_string (256);
 
+  // handle commands
+  if (msg.find ('/') == 0)
+    {
+      this->handle_command (std::move (msg));
+      return;
+    }
+
   auto out_msg = this->info.username + ": " + msg;
 
   this->send (this->srv, caf::atom ("globmsg"), out_msg);
@@ -435,6 +451,21 @@ client::handle_player_block_placement (packet_reader& reader)
   this->send (this->curr_world.actor, caf::atom ("setblock"), place_pos, block_id);
 }
 
+
+void
+client::handle_command (std::string&& msg)
+{
+  std::istringstream ss (msg);
+  std::string cmd_name;
+  ss >> cmd_name;
+
+  cmd_name.erase (0, 1); // remove /
+  std::transform (cmd_name.begin (), cmd_name.end (), cmd_name.begin (),
+      [] (char c) { return std::tolower ((unsigned char)c); }); // convert to lower case
+
+  // send command to scripting engine
+  this->send (this->script_eng, caf::atom ("runcmd"), cmd_name, msg, this);
+}
 
 
 void

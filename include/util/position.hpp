@@ -76,5 +76,19 @@ inspect (Inspector& f, block_pos pos)
   return f (caf::meta::type_name ("block_pos"), pos.x, pos.y, pos.z);
 }
 
+template<typename Inspector>
+typename Inspector::result_type
+inspect (Inspector& f, player_pos pos)
+{
+  return f (caf::meta::type_name ("player_pos"), pos.x, pos.y, pos.z);
+}
+
+template<typename Inspector>
+typename Inspector::result_type
+inspect (Inspector& f, player_rot rot)
+{
+  return f (caf::meta::type_name ("player_rot"), rot.yaw, rot.pitch);
+}
+
 
 #endif //NOSTALGIA_POSITION_HPP

@@ -38,6 +38,7 @@ class disconnect : public std::exception
 class client : public caf::event_based_actor
 {
   caf::actor srv;
+  caf::actor script_eng;
   connection_state curr_state;
   caf::actor broker;
   client_info info;
@@ -59,7 +60,7 @@ class client : public caf::event_based_actor
 
  public:
   explicit client (caf::actor_config& cfg, const caf::actor& srv,
-                   unsigned int client_id);
+                   caf::actor script_eng, unsigned int client_id);
 
   caf::behavior make_behavior () override;
 
@@ -87,6 +88,9 @@ class client : public caf::event_based_actor
   void handle_held_item_change (packet_reader& reader);
   void handle_creative_inventory_action_packet (packet_reader& reader);
   void handle_player_block_placement (packet_reader& reader);
+
+
+  void handle_command (std::string&& msg);
 
 
   /*!
