@@ -12,7 +12,7 @@
 #include <random>
 
 
-class server : public caf::event_based_actor
+class server_actor : public caf::event_based_actor
 {
   std::mt19937 rnd;
   std::map<unsigned int, client_info> connected_clients;
@@ -22,7 +22,7 @@ class server : public caf::event_based_actor
   caf::actor script_eng;
 
  public:
-  explicit server (caf::actor_config& cfg, const caf::actor& script_eng);
+  explicit server_actor (caf::actor_config& cfg, const caf::actor& script_eng);
 
   caf::behavior make_behavior () override;
 

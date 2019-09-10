@@ -5,6 +5,7 @@
 #ifndef NOSTALGIA_CLIENT_HPP
 #define NOSTALGIA_CLIENT_HPP
 
+#include "system/server.hpp"
 #include "system/consts.hpp"
 #include "system/info.hpp"
 #include "util/position.hpp"
@@ -16,7 +17,6 @@
 // forward decs:
 class packet_reader;
 class packet_writer;
-
 
 /*!
  * \brief Thrown by functions called by handle_packet to force the client
@@ -35,7 +35,7 @@ class disconnect : public std::exception
 };
 
 
-class client : public caf::event_based_actor
+class client_actor : public caf::event_based_actor
 {
   caf::actor srv;
   caf::actor script_eng;
@@ -59,8 +59,8 @@ class client : public caf::event_based_actor
   uint32_t keep_alive_id = (uint32_t)-1;
 
  public:
-  explicit client (caf::actor_config& cfg, const caf::actor& srv,
-                   caf::actor script_eng, unsigned int client_id);
+  explicit client_actor (caf::actor_config& cfg, const caf::actor& srv,
+                         caf::actor script_eng, unsigned int client_id);
 
   caf::behavior make_behavior () override;
 

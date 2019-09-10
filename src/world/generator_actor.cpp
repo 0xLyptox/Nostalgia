@@ -3,6 +3,7 @@
 //
 
 #include "world/generator_actor.hpp"
+#include "system/atoms.hpp"
 #include "util/position.hpp"
 #include "world/chunk.hpp"
 
@@ -21,7 +22,7 @@ world_generator_actor::act ()
 {
   bool running = true;
   this->receive_while ([&] { return running; }) (
-      [this] (caf::atom_constant<caf::atom ("generate")>, chunk_pos pos, std::string gen_name) {
+      [this] (generate_atom, chunk_pos pos, std::string gen_name) {
         chunk ch (pos.x, pos.z);
 
         for (auto& gen : this->generators)
@@ -34,7 +35,7 @@ world_generator_actor::act ()
         return ch;
       },
 
-      [&] (caf::atom_constant<caf::atom ("stop")>) {
+      [&] (stop_atom) {
         running = false;
       });
 }

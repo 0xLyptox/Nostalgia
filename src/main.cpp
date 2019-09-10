@@ -35,7 +35,7 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
   self->configure_read (hdl, caf::io::receive_policy::exactly (1));
 
   // announce self to client and link together
-  self->send (state->cl, caf::atom ("broker"), self);
+  self->send (state->cl, broker_atom::value, caf::actor_cast<caf::actor> (self));
   self->link_to (state->cl);
 
   self->set_exit_handler ([=] (caf::exit_msg& msg) {
@@ -52,7 +52,7 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
       self->send (state->cl, caf::exit_msg { self->address (), caf::exit_reason::user_shutdown });
 
       // remove client from server
-      self->send (state->srv, caf::atom ("delclient"), state->client_id);
+      self->send (state->srv, del_client_atom::value, state->client_id);
 
       self->quit (caf::exit_reason::user_shutdown);
     },
@@ -61,7 +61,7 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
       if (state->waiting_for_packet_data)
         {
           // relay packet contents to associated client actor.
-          self->send (state->cl, caf::atom ("packetin"), msg.buf);
+          self->send (state->cl, packet_in_atom::value, msg.buf);
 
           // reset state for next packet
           self->configure_read (hdl, caf::io::receive_policy::exactly (1));
@@ -86,7 +86,7 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
     //
     // Handles packet send requests from associated client actor.
     //
-    [=] (caf::atom_constant<caf::atom ("packet")>, const std::vector<char>& buf) {
+    [=] (packet_out_atom, const std::vector<char>& buf) {
       // write the size of the packet
       packet_writer writer;
       writer.write_varlong (buf.size ());
@@ -114,7 +114,7 @@ server_broker_impl (caf::io::broker *self, server_broker_state *state,
     [=] (const caf::io::new_connection_msg& msg) {
       caf::aout (self) << "Accepted new connection!" << std::endl;
       auto client_id = state->next_client_id++;
-      auto cl = self->system ().spawn<client> (srv, script_eng, client_id);
+      auto cl = self->system ().spawn<client_actor> (srv, script_eng, client_id);
 
       state->states.emplace_back (new client_broker_state ());
       auto client_broker_state = state->states.back ().get ();
@@ -125,7 +125,7 @@ server_broker_impl (caf::io::broker *self, server_broker_state *state,
       auto client_broker = self->fork (client_broker_impl, msg.handle,
           state->states.back ().get ());
 
-      self->send (srv, caf::atom ("addclient"), cl, client_id);
+      self->send (srv, add_client_atom::value, cl, client_id);
     }
   };
 }
@@ -135,13 +135,13 @@ void
 caf_main (caf::actor_system& system, const nostalgia_config& cfg)
 {
   auto script_eng = system.spawn<scripting_actor> ();
-  auto srv = system.spawn<server> (script_eng);
+  auto srv = system.spawn<server_actor> (script_eng);
 
   // initialize server
   {
     caf::scoped_actor self (system);
     std::cout << "Initializing server..." << std::endl;
-    self->request (srv, caf::infinite, caf::atom ("init")).receive (
+    self->request (srv, caf::infinite, init_atom::value).receive (
       [&] (bool res) {
         std::cout << "Server initialized." << std::endl;
       },

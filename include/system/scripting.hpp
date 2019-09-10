@@ -5,6 +5,8 @@
 #ifndef NOSTALGIA_SCRIPTING_HPP
 #define NOSTALGIA_SCRIPTING_HPP
 
+#include "system/atoms.hpp"
+#include "util/position.hpp"
 #include <stdexcept>
 #include <list>
 #include <caf/all.hpp>
@@ -26,7 +28,7 @@ struct script_state
   std::list<script_state>::iterator itr;
   script_type type;
   int id;
-  void *vm; // actually lua_State*
+  void *vm, *thread; // lua_State*
   caf::actor client;
   scripting_actor *self;
   int last_yield_code;
@@ -37,11 +39,13 @@ struct script_state
  */
 class scripting_actor : public caf::blocking_actor
 {
+  void *vm; // lua_State*
   std::list<script_state> states;
   int next_state_id = 1;
 
  public:
   scripting_actor (caf::actor_config& cfg);
+  ~scripting_actor ();
 
   void act () override;
 
@@ -62,12 +66,10 @@ class scripting_actor : public caf::blocking_actor
    * \throw command_not_found if a command script does not exist.
    * \return The newly created script state.
    */
-  script_state& load_command (const std::string& cmd_name);
+  void load_command (const std::string& cmd_path);
 
-  /*!
-   * \brief Sets up the appropriate environment for a command script to run.
-   */
-  void setup_command (script_state& state, const caf::actor& client, const std::string& msg);
+  //! \brief Loads all command scripts from the specified directory.
+  void load_commands (const std::string& path);
 
   /*!
    * \brief Runs the command script associated with the specified state structure.

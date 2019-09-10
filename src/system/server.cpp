@@ -3,6 +3,7 @@
 //
 
 #include "system/server.hpp"
+#include "system/atoms.hpp"
 #include "world/world.hpp"
 #include "system/consts.hpp"
 #include "world/generator_actor.hpp"
@@ -12,7 +13,7 @@
 #include "system/scripting.hpp"
 
 
-server::server (caf::actor_config& cfg, const caf::actor& script_eng)
+server_actor::server_actor (caf::actor_config& cfg, const caf::actor& script_eng)
     : caf::event_based_actor (cfg), script_eng (script_eng)
 {
   // nop
@@ -20,13 +21,16 @@ server::server (caf::actor_config& cfg, const caf::actor& script_eng)
 
 
 void
-server::setup ()
+server_actor::setup ()
 {
   // load registries
   registries::initialize ();
 
   // load blocks
   block::initialize ();
+
+  // load commands
+  this->send (this->script_eng, load_commands_atom::value, "scripts/commands");
 
   // spawn world generator actor
   this->world_gen = this->system ().spawn<world_generator_actor> ();
@@ -39,16 +43,15 @@ server::setup ()
 
 
 caf::behavior
-server::make_behavior ()
+server_actor::make_behavior ()
 {
   return {
-      [this] (caf::atom_constant<caf::atom ("init")>) {
+      [this] (init_atom) {
         this->setup ();
         return true;
       },
 
-      [this] (caf::atom_constant<caf::atom ("addclient")>, const caf::actor& client,
-              unsigned int client_id) {
+      [this] (add_client_atom, caf::actor client, unsigned int client_id) {
         this->connected_clients[client_id] = client_info ();
         client_info& info = this->connected_clients[client_id];
         info.actor = client;
@@ -56,18 +59,18 @@ server::make_behavior ()
         info.uuid = uuid_t::random (this->rnd);
       },
 
-      [this] (caf::atom_constant<caf::atom ("delclient")>, unsigned int client_id) {
+      [this] (del_client_atom, unsigned int client_id) {
         this->connected_clients.erase (client_id);
       },
 
-      [this] (caf::atom_constant<caf::atom ("getclient")>, unsigned int client_id) {
+      [this] (get_client_atom, unsigned int client_id) {
         auto itr = this->connected_clients.find (client_id);
         if (itr == this->connected_clients.end ())
           return client_info {};
         return itr->second;
       },
 
-      [this] (caf::atom_constant<caf::atom ("setclient")>, unsigned int client_id,
+      [this] (set_client_atom, unsigned int client_id,
               const client_info& info) {
         auto itr = this->connected_clients.find (client_id);
         if (itr != this->connected_clients.end ())
@@ -76,20 +79,20 @@ server::make_behavior ()
           }
       },
 
-      [this] (caf::atom_constant<caf::atom ("getworld")>, const std::string& world_name) {
+      [this] (get_world_atom, const std::string& world_name) {
         auto itr = this->worlds.find (world_name);
         if (itr == this->worlds.end ())
           return world_info {};
         return itr->second;
       },
 
-      [this] (caf::atom_constant<caf::atom ("globmsg")>, const std::string& msg) {
+      [this] (global_message_atom, const std::string& msg) {
         auto packet = packets::play::make_chat_message_simple (msg, 0);
         std::vector<char> packet_buf = packet.move_data ();
         for (auto& p : this->connected_clients)
           {
             auto& cl = p.second.actor;
-            this->send (cl, caf::atom ("packetout"), packet_buf);
+            this->send (cl, packet_out_atom::value, packet_buf);
           }
       }
   };

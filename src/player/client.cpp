@@ -3,6 +3,7 @@
 //
 
 #include "player/client.hpp"
+#include "system/atoms.hpp"
 #include "network/packet_reader.hpp"
 #include "network/packet_writer.hpp"
 #include "system/consts.hpp"
@@ -15,9 +16,9 @@
 #include <cctype>
 
 
-client::client (caf::actor_config& cfg, const caf::actor& srv,
-                caf::actor script_eng, unsigned int client_id)
-  : event_based_actor (cfg), srv (srv), script_eng (script_eng), curr_state (connection_state::handshake),
+client_actor::client_actor (caf::actor_config& cfg, const caf::actor& srv,
+                            caf::actor script_eng, unsigned int client_id)
+  : caf::event_based_actor (cfg), srv (srv), script_eng (script_eng), curr_state (connection_state::handshake),
     inv (window_spec::player_inventory)
 {
   this->info.id = client_id;
@@ -26,17 +27,17 @@ client::client (caf::actor_config& cfg, const caf::actor& srv,
 
 
 caf::behavior
-client::make_behavior ()
+client_actor::make_behavior ()
 {
   return {
-      [this] (caf::atom_constant<caf::atom ("broker")>, const caf::actor& broker) {
+      [this] (broker_atom, caf::actor broker) {
         this->broker = broker;
       },
 
       //
       // Whole packets received from the client's associated broker.
       //
-      [this] (caf::atom_constant<caf::atom ("packetin")>, std::vector<char> buf) {
+      [this] (packet_in_atom, std::vector<char> buf) {
         try
           {
             packet_reader reader (buf);
@@ -59,34 +60,34 @@ client::make_behavior ()
           }
       },
 
-      [this] (caf::atom_constant<caf::atom ("packetout")>, const std::vector<char>& buf) {
-        return this->delegate (this->broker, caf::atom ("packet"), buf);
+      [this] (packet_out_atom, const std::vector<char>& buf) {
+        return this->delegate (this->broker, packet_out_atom::value, buf);
       },
 
       // messages from scripting engine:
 
-      [this] (caf::atom_constant<caf::atom ("Sgetpos")>, int sid) {
-        this->send (this->script_eng, caf::atom ("Sgetpos"), sid, this->pos, this->rot);
+      [this] (s_get_pos_atom, int sid) {
+        this->send (this->script_eng, s_get_pos_atom::value, sid, this->pos, this->rot);
       },
   };
 }
 
 
 void
-client::send_packet (packet_writer& writer)
+client_actor::send_packet (packet_writer& writer)
 {
-  this->send (this->broker, caf::atom ("packet"), writer.move_data ());
+  this->send (this->broker, packet_out_atom::value, writer.move_data ());
 }
 
 void
-client::send_packet (packet_writer&& writer)
+client_actor::send_packet (packet_writer&& writer)
 {
-  this->send (this->broker, caf::atom ("packet"), writer.move_data ());
+  this->send (this->broker, packet_out_atom::value, writer.move_data ());
 }
 
 
 void
-client::handle_packet (packet_reader& reader)
+client_actor::handle_packet (packet_reader& reader)
 {
   //caf::aout (this) << "Received packet of size " << reader.size () << std::endl;
 
@@ -116,7 +117,7 @@ client::handle_packet (packet_reader& reader)
 
 
 void
-client::handle_handshake_state_packet (packet_reader& reader)
+client_actor::handle_handshake_state_packet (packet_reader& reader)
 {
   auto id = reader.read_varlong ();
   switch (id)
@@ -132,7 +133,7 @@ client::handle_handshake_state_packet (packet_reader& reader)
 }
 
 void
-client::handle_play_state_packet (packet_reader& reader)
+client_actor::handle_play_state_packet (packet_reader& reader)
 {
   auto id = reader.read_varlong ();
   //caf::aout (this) << "PLAY packet: " << id << std::endl;
@@ -193,7 +194,7 @@ client::handle_play_state_packet (packet_reader& reader)
 }
 
 void
-client::handle_status_state_packet (packet_reader& reader)
+client_actor::handle_status_state_packet (packet_reader& reader)
 {
   auto id = reader.read_varlong ();
   switch (id)
@@ -215,7 +216,7 @@ client::handle_status_state_packet (packet_reader& reader)
 }
 
 void
-client::handle_login_state_packet (packet_reader& reader)
+client_actor::handle_login_state_packet (packet_reader& reader)
 {
   auto id = reader.read_varlong ();
   switch (id)
@@ -233,7 +234,7 @@ client::handle_login_state_packet (packet_reader& reader)
 
 
 void
-client::handle_handshake_packet (packet_reader& reader)
+client_actor::handle_handshake_packet (packet_reader& reader)
 {
   caf::aout (this) << "Got HANDSHAKE packet" << std::endl;
 
@@ -257,7 +258,7 @@ client::handle_handshake_packet (packet_reader& reader)
 }
 
 void
-client::handle_login_start_packet (packet_reader& reader)
+client_actor::handle_login_start_packet (packet_reader& reader)
 {
   caf::aout (this) << "Got LOGINSTART packet" << std::endl;
 
@@ -265,7 +266,7 @@ client::handle_login_start_packet (packet_reader& reader)
   caf::aout (this) << "Username: " << username << std::endl;
 
   // get info from server
-  this->request (this->srv, caf::infinite, caf::atom ("getclient"), this->info.id).await (
+  this->request (this->srv, caf::infinite, get_client_atom::value, this->info.id).await (
       [=] (const client_info& info) {
         caf::aout (this) << "Got some info." << std::endl;
         // update information
@@ -273,7 +274,7 @@ client::handle_login_start_packet (packet_reader& reader)
         this->info.username = username;
 
         // update server
-        this->send (this->srv, caf::atom ("setclient"), this->info.id, this->info);
+        this->send (this->srv, set_client_atom::value, this->info.id, this->info);
 
         // transition into PLAY state.
         this->curr_state = connection_state::play;
@@ -286,7 +287,7 @@ client::handle_login_start_packet (packet_reader& reader)
 
 
 void
-client::handle_chat_message_packet (packet_reader& reader)
+client_actor::handle_chat_message_packet (packet_reader& reader)
 {
   auto msg = reader.read_string (256);
 
@@ -299,11 +300,11 @@ client::handle_chat_message_packet (packet_reader& reader)
 
   auto out_msg = this->info.username + ": " + msg;
 
-  this->send (this->srv, caf::atom ("globmsg"), out_msg);
+  this->send (this->srv, global_message_atom::value, out_msg);
 }
 
 void
-client::handle_client_settings_packet (packet_reader& reader)
+client_actor::handle_client_settings_packet (packet_reader& reader)
 {
   auto locale = reader.read_string (16);
   int view_distance = reader.read_byte ();
@@ -315,13 +316,13 @@ client::handle_client_settings_packet (packet_reader& reader)
 }
 
 void
-client::handle_close_window_packet (packet_reader& reader)
+client_actor::handle_close_window_packet (packet_reader& reader)
 {
 
 }
 
 void
-client::handle_keep_alive_packet (packet_reader& reader)
+client_actor::handle_keep_alive_packet (packet_reader& reader)
 {
   auto id = (uint64_t)reader.read_long ();
   if (id != this->keep_alive_id)
@@ -332,14 +333,14 @@ client::handle_keep_alive_packet (packet_reader& reader)
 }
 
 void
-client::handle_player_packet (packet_reader& reader)
+client_actor::handle_player_packet (packet_reader& reader)
 {
   bool ground = reader.read_bool ();
   this->update_position (this->pos, this->rot, ground);
 }
 
 void
-client::handle_player_position_packet (packet_reader& reader)
+client_actor::handle_player_position_packet (packet_reader& reader)
 {
   double x = reader.read_double ();
   double y = reader.read_double ();
@@ -349,7 +350,7 @@ client::handle_player_position_packet (packet_reader& reader)
 }
 
 void
-client::handle_player_position_and_look_packet (packet_reader& reader)
+client_actor::handle_player_position_and_look_packet (packet_reader& reader)
 {
   double x = reader.read_double ();
   double y = reader.read_double ();
@@ -361,7 +362,7 @@ client::handle_player_position_and_look_packet (packet_reader& reader)
 }
 
 void
-client::handle_player_look_packet (packet_reader& reader)
+client_actor::handle_player_look_packet (packet_reader& reader)
 {
   float yaw = reader.read_float ();
   float pitch = reader.read_float ();
@@ -370,7 +371,7 @@ client::handle_player_look_packet (packet_reader& reader)
 }
 
 void
-client::handle_player_digging_packet (packet_reader& reader)
+client_actor::handle_player_digging_packet (packet_reader& reader)
 {
   auto status = (int)reader.read_varlong ();
   block_pos pos = reader.read_position ();
@@ -378,11 +379,11 @@ client::handle_player_digging_packet (packet_reader& reader)
 
   caf::aout (this) << "Digging at (" << pos.x << ", " << pos.y << ", " << pos.z << ") [Status: " << status << ", Face: " << (int)face << "]" << std::endl;
 
-  this->send (this->curr_world.actor, caf::atom ("setblock"), pos, (unsigned short)0);
+  this->send (this->curr_world.actor, set_block_atom::value, pos, (unsigned short)0);
 }
 
 void
-client::handle_held_item_change (packet_reader& reader)
+client_actor::handle_held_item_change (packet_reader& reader)
 {
   int idx = (int)reader.read_short ();
   if (idx < 0 || idx > 8)
@@ -392,7 +393,7 @@ client::handle_held_item_change (packet_reader& reader)
 }
 
 void
-client::handle_creative_inventory_action_packet (packet_reader& reader)
+client_actor::handle_creative_inventory_action_packet (packet_reader& reader)
 {
   int idx = reader.read_short ();
   bool has_slot = reader.read_bool ();
@@ -417,7 +418,7 @@ client::handle_creative_inventory_action_packet (packet_reader& reader)
 }
 
 void
-client::handle_player_block_placement (packet_reader& reader)
+client_actor::handle_player_block_placement (packet_reader& reader)
 {
   auto hand = reader.read_varlong ();
   auto location = reader.read_position ();
@@ -448,12 +449,12 @@ client::handle_player_block_placement (packet_reader& reader)
   auto& item_name = registries::name (ITEM_REGISTRY, item->id ());
   auto block_id = (unsigned short)block::find (item_name).get_id ();
 
-  this->send (this->curr_world.actor, caf::atom ("setblock"), place_pos, block_id);
+  this->send (this->curr_world.actor, set_block_atom::value, place_pos, block_id);
 }
 
 
 void
-client::handle_command (std::string&& msg)
+client_actor::handle_command (std::string&& msg)
 {
   std::istringstream ss (msg);
   std::string cmd_name;
@@ -464,16 +465,16 @@ client::handle_command (std::string&& msg)
       [] (char c) { return std::tolower ((unsigned char)c); }); // convert to lower case
 
   // send command to scripting engine
-  this->send (this->script_eng, caf::atom ("runcmd"), cmd_name, msg, this);
+  this->send (this->script_eng, run_command_atom::value, cmd_name, msg, this);
 }
 
 
 void
-client::join_world (const std::string& world_name)
+client_actor::join_world (const std::string& world_name)
 {
   caf::aout (this) << "Joining world: " << world_name << std::endl;
 
-  this->request (this->srv, caf::infinite, caf::atom ("getworld"), world_name).await (
+  this->request (this->srv, caf::infinite, get_world_atom::value, world_name).await (
       [=] (const world_info& info) {
         caf::aout (this) << "Got world information of \"" << info.name << "\" from server." << std::endl;
         this->curr_world = info;
@@ -491,7 +492,7 @@ client::join_world (const std::string& world_name)
 }
 
 void
-client::update_position (player_pos pos, player_rot rot, bool ground)
+client_actor::update_position (player_pos pos, player_rot rot, bool ground)
 {
   this->pos = pos;
   this->rot = rot;
@@ -502,7 +503,7 @@ client::update_position (player_pos pos, player_rot rot, bool ground)
 }
 
 void
-client::call_tick ()
+client_actor::call_tick ()
 {
   double this_time = std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::high_resolution_clock::now ().time_since_epoch ()).count () / 1000.0;
   if (this->first_tick)
@@ -524,7 +525,7 @@ client::call_tick ()
  * \brief Tick function that is called every second.
  */
 void
-client::tick ()
+client_actor::tick ()
 {
   ++ this->elapsed_ticks;
 
@@ -551,7 +552,7 @@ client::tick ()
  * \brief Loads or unloads new/old chunks based on the player's position.
  */
 void
-client::update_chunks ()
+client_actor::update_chunks ()
 {
   chunk_pos pos = this->pos;
   if (pos == this->last_cpos)
@@ -579,7 +580,7 @@ client::update_chunks ()
           z < this->last_cpos.z - chunk_radius || z > this->last_cpos.z + chunk_radius)
         {
           //caf::aout (this) << "Sending chunk " << x << "," << z << std::endl;
-          this->send (this->curr_world.actor, caf::atom ("reqcdata"), x, z, this->broker);
+          this->send (this->curr_world.actor, request_chunk_data_atom::value, x, z, this->broker);
         }
     }
 
@@ -590,7 +591,7 @@ client::update_chunks ()
 
 //! \brief Returns the slot item currently held by the player.
 slot*
-client::held_item ()
+client_actor::held_item ()
 {
   return this->inv.get_slot ("hotbar", this->hand_slot_idx);
 }

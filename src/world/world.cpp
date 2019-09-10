@@ -4,6 +4,7 @@
 
 #include "world/world.hpp"
 #include "world/blocks.hpp"
+#include "system/atoms.hpp"
 
 #define MAX(A, B) (((A) > (B)) ? (A) : (B))
 #define ABS(A) (((A) < 0) ? (-(A)) : (A))
@@ -28,30 +29,30 @@ world::handle_messages ()
 {
   bool running = true;
   this->receive_while (running) (
-      [this] (caf::atom_constant<caf::atom ("reqcdata")>, int cx, int cz, caf::actor broker) {
+      [this] (request_chunk_data_atom, int cx, int cz, caf::actor broker) {
         // find this chunk
         auto ch = this->find_chunk (cx, cz);
         if (ch)
           {
             // chunk already exists, send it.
-            this->send (broker, caf::atom ("packet"), ch->make_chunk_data_packet ().move_data ());
+            this->send (broker, packet_out_atom::value, ch->make_chunk_data_packet ().move_data ());
           }
         else
           {
             // chunk does not exist, generate it.
-            this->request (this->world_gen, caf::infinite, caf::atom ("generate"), chunk_pos (cx, cz), "flatgrass").receive (
+            this->request (this->world_gen, caf::infinite, generate_atom::value, chunk_pos (cx, cz), "flatgrass").receive (
                 [this, cx, cz, broker] (chunk ch) {
                   auto key = std::make_pair (cx, cz);
                   auto& new_ch = this->chunks[key] = std::make_unique<chunk> (std::move (ch));
 
                   // send chunk to player.
-                  this->send (broker, caf::atom ("packet"), new_ch->make_chunk_data_packet ().move_data ());
+                  this->send (broker, packet_out_atom::value, new_ch->make_chunk_data_packet ().move_data ());
                 },
                 [this] (caf::error& err) {});
           }
       },
 
-      [this] (caf::atom_constant<caf::atom ("setblock")>, block_pos pos, unsigned short id) {
+      [this] (set_block_atom, block_pos pos, unsigned short id) {
         chunk_pos cpos = pos;
         caf::aout (this) << "World: setblock at (" << pos.x << ", " << pos.y << ", " << pos.z << ") to " << id << std::endl;
         auto ch = this->find_chunk (cpos.x, cpos.z);
@@ -66,7 +67,7 @@ world::handle_messages ()
           }
       },
 
-      [&] (caf::atom_constant<caf::atom ("stop")>) {
+      [&] (stop_atom) {
         running = false;
       });
 }

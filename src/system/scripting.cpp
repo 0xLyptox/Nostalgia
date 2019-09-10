@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
 #include <lua.hpp>
 
 using namespace std::chrono_literals;
@@ -80,7 +81,7 @@ player_message (lua_State *L)
 
   // send message packet to player
   auto packet = packets::play::make_chat_message_simple (msg, 0);
-  state.self->send (state.client, caf::atom ("packetout"), packet.move_data ());
+  state.self->send (state.client, packet_out_atom::value, packet.move_data ());
 
   return 0;
 }
@@ -120,7 +121,15 @@ player_get_position (lua_State *L)
 scripting_actor::scripting_actor (caf::actor_config& cfg)
   : caf::blocking_actor (cfg)
 {
+  lua_State *L = luaL_newstate ();
+  luaL_openlibs (L);
+  this->vm = L;
+}
 
+scripting_actor::~scripting_actor ()
+{
+  auto L = static_cast<lua_State *> (this->vm);
+  lua_close (L);
 }
 
 
@@ -142,23 +151,27 @@ scripting_actor::act ()
 {
   bool running = true;
   this->receive_while (running) (
-    [&] (caf::atom_constant<caf::atom ("runcmd")>, const std::string& cmd, const std::string& msg, const caf::actor& client) {
+    [&] (stop_atom) {
+      running = false;
+    },
+
+    [&] (run_command_atom, const std::string& cmd, const std::string& msg, const caf::actor& client) {
       this->handle_runcmd (cmd, msg, client);
     },
 
-    [&] (caf::atom_constant<caf::atom ("stop")>) {
-      running = false;
+    [&] (load_commands_atom , const std::string& path) {
+      this->load_commands (path);
     },
 
     // response messages:
 
-    [&] (caf::atom_constant<caf::atom ("Sgetpos")>, int sid, player_pos pos, player_rot rot) {
+    [&] (s_get_pos_atom, int sid, player_pos pos, player_rot rot) {
       auto state = this->find_state (sid);
       if (!state) return;
       if (state->last_yield_code != YC_GET_POSITION) return; // shouldn't happen...
 
       // push result
-      auto L = static_cast<lua_State *> (state->vm);
+      auto L = static_cast<lua_State *> (state->thread);
       lua_createtable (L, 0, 5);
       lua_pushstring (L, "x");
       lua_pushnumber (L, pos.x);
@@ -189,34 +202,30 @@ scripting_actor::act ()
 void
 scripting_actor::handle_runcmd (const std::string& cmd, const std::string& msg, const caf::actor& client)
 {
-  script_state *state = nullptr;
-  try
-    {
-      state = &this->load_command (cmd);
-    }
-  catch (const command_not_found&)
-    {
-      // TODO
-      caf::aout (this) << "Unknown command: " << cmd << std::endl;
-      return;
-    }
-  catch (const lua_exception& ex)
-    {
-      // TODO:
-      caf::aout (this) << "Lua error during load: " << ex.what () << std::endl;
-      return;
-    }
+  auto L = static_cast<lua_State *> (this->vm);
+
+  // create new state
+  this->states.emplace_back ();
+  auto& state = this->states.back ();
+  state.vm = L;
+  state.thread = lua_newthread (L);
+  state.type = script_type::command;
+  state.id = this->next_state_id ++;
+  state.self = this;
+  state.client = client;
+  state.last_yield_code = YC_NONE;
+  state.itr = this->states.end ();
+  -- state.itr;
 
   try
     {
-      this->setup_command (*state, client, msg);
-      this->run_command (*state);
+      this->run_command (state);
     }
   catch (const lua_exception& ex)
     {
       // TODO:
       caf::aout (this) << "Lua runtime error: " << ex.what () << std::endl;
-      this->delete_state (*state);
+      this->delete_state (state);
       return;
     }
 }
@@ -232,20 +241,17 @@ scripting_actor::handle_timeout ()
 void
 scripting_actor::delete_state (script_state& state)
 {
-  if (state.vm)
-    lua_close (static_cast<lua_State *> (state.vm));
-
   this->states.erase (state.itr);
 }
 
 
-script_state&
-scripting_actor::load_command (const std::string& cmd_name)
+void
+scripting_actor::load_command (const std::string& cmd_path)
 {
   // open script file
   // TODO: sanitize command!
   // TODO: or alternatively, implement a trusted command list and use that.
-  std::ifstream fs ("scripts/commands/" + cmd_name + ".lua");
+  std::ifstream fs (cmd_path);
   if (!fs)
     throw command_not_found {};
 
@@ -254,45 +260,23 @@ scripting_actor::load_command (const std::string& cmd_name)
   ss << fs.rdbuf ();
   auto script = ss.str ();
 
-  // create new state
-  this->states.emplace_back ();
-  auto& state = this->states.back ();
-  state.type = script_type::command;
-  state.id = this->next_state_id ++;
-  state.self = this;
-  state.last_yield_code = YC_NONE;
-  state.itr = this->states.end ();
-  -- state.itr;
-
-  lua_State *L = luaL_newstate ();
-  luaL_openlibs (L);
-  state.vm = L;
-
-  // load script
+  // load script in context of main VM
+  auto L = static_cast<lua_State *> (this->vm);
   int err = luaL_loadstring (L, script.c_str ()) || lua_pcall (L, 0, 0, 0);
   if (err)
     {
       std::string err_msg = lua_tostring (L, -1);
-      lua_close (L);
       this->states.pop_back ();
       throw lua_exception (err_msg);
     }
-
-  return state;
-}
-
-void
-scripting_actor::setup_command (script_state& state, const caf::actor& client, const std::string& msg)
-{
-  state.client = client;
 }
 
 void
 scripting_actor::run_command (script_state& state)
 {
-  auto L = static_cast<lua_State *> (state.vm);
-  if (!lua_getglobal (L, "docommand"))
-    throw lua_exception ("Command script does not have a \"docommand\" function!");
+  auto L = static_cast<lua_State *> (state.thread);
+  if (!lua_getglobal (L, "do_command"))
+    throw lua_exception ("Command script does not have a \"do_command\" function!");
 
   // create player table
   lua_createtable (L, 0, 0);
@@ -321,11 +305,42 @@ scripting_actor::run_command (script_state& state)
   this->resume_script (state, 1);
 }
 
+void
+scripting_actor::load_commands (const std::string& path)
+{
+  caf::aout (this) << "Loading commands..." << std::endl;
+  for (auto& entry : std::filesystem::directory_iterator (path))
+    {
+      auto& p = entry.path ();
+      if (!entry.is_regular_file ())
+        continue;
+      if (p.extension () != ".lua")
+        continue;
+
+      try
+        {
+          caf::aout (this) << "    Loading command: " << p.filename ().string () << std::endl;
+          this->load_command (p.string ());
+        }
+//      catch (const command_not_found&)
+//        {
+//          caf::aout (this) << "Command not found" << std::endl;
+//        }
+      catch (const lua_exception& ex)
+        {
+          // TODO:
+          caf::aout (this) << "Lua error during load: " << ex.what () << std::endl;
+        }
+    }
+
+  caf::aout (this) << "    Done" << std::endl;
+}
+
 
 void
 scripting_actor::process_yield (script_state& state)
 {
-  auto L = static_cast<lua_State *> (state.vm);
+  auto L = static_cast<lua_State *> (state.thread);
   auto params = lua_gettop (L);
   if (params == 0)
     {
@@ -338,7 +353,7 @@ scripting_actor::process_yield (script_state& state)
   switch (yield_code)
     {
     case YC_GET_POSITION:
-      this->send (state.client, caf::atom ("Sgetpos"), state.id);
+      this->send (state.client, s_get_pos_atom::value, state.id);
       break;
 
     default: ;
@@ -351,7 +366,7 @@ scripting_actor::process_yield (script_state& state)
 void
 scripting_actor::resume_script (script_state& state, int num_args)
 {
-  auto L = static_cast<lua_State *> (state.vm);
+  auto L = static_cast<lua_State *> (state.thread);
 
   int status = lua_resume (L, NULL, num_args);
   if (status == LUA_OK)
