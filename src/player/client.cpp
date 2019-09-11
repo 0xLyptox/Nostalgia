@@ -64,6 +64,11 @@ client_actor::make_behavior ()
         return this->delegate (this->broker, packet_out_atom::value, buf);
       },
 
+      [this] (message_atom, const std::string& msg) {
+        auto packet = packets::play::make_chat_message_simple (msg, 0);
+        this->send (this->broker, packet_out_atom::value, packet.move_data ());
+      },
+
       // messages from scripting engine:
 
       [this] (s_get_pos_atom, int sid) {
@@ -465,7 +470,7 @@ client_actor::handle_command (std::string&& msg)
       [] (char c) { return std::tolower ((unsigned char)c); }); // convert to lower case
 
   // send command to scripting engine
-  this->send (this->script_eng, run_command_atom::value, cmd_name, msg, this);
+  this->send (this->script_eng, run_command_atom::value, cmd_name, msg, this->info);
 }
 
 

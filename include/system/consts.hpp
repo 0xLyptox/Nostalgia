@@ -13,6 +13,8 @@ constexpr const char *main_world_name = "Main";
 constexpr int chunk_radius = 4;
 constexpr int max_lighting_updates = 1024;
 
+constexpr const char *color_escape = "\x07";
+
 
 enum class connection_state
 {

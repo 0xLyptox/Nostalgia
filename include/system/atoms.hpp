@@ -16,10 +16,12 @@ using init_atom = caf::atom_constant<caf::atom ("0_2")>;
 using broker_atom = caf::atom_constant<caf::atom ("1_1")>;
 using packet_in_atom = caf::atom_constant<caf::atom ("1_2")>;
 using packet_out_atom = caf::atom_constant<caf::atom ("1_3")>;
+using message_atom = caf::atom_constant<caf::atom ("1_4")>;
 
 // scripting engine atoms:
 using run_command_atom = caf::atom_constant<caf::atom ("2_1")>;
 using load_commands_atom = caf::atom_constant<caf::atom ("2_2")>;
+using run_script_basic_atom = caf::atom_constant<caf::atom ("2_3")>;
 
 // server atoms:
 using add_client_atom = caf::atom_constant<caf::atom ("3_1")>;

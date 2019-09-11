@@ -5,9 +5,30 @@
 #include "network/packets.hpp"
 #include "system/consts.hpp"
 #include <nlohmann/json.hpp>
+#include <vector>
+#include <cstring>
 
 using json = nlohmann::json;
 
+
+static std::vector<std::string> _color_names {
+    "black",
+    "dark_blue",
+    "dark_green",
+    "dark_aqua",
+    "dark_red",
+    "dark_purple",
+    "gold",
+    "gray",
+    "dark_gray",
+    "blue",
+    "green",
+    "aqua",
+    "red",
+    "light_purple",
+    "yellow",
+    "white"
+};
 
 namespace packets::play {
 
@@ -18,8 +39,42 @@ namespace packets::play {
     writer.write_varlong (OPI_CHAT_MESSAGE);
 
     json j = {
-        {"text", msg}
+        { "text", "" },
+        { "extra", nlohmann::json::array () }
     };
+
+    int col = 0xf;
+    size_t pos = 0, end;
+    std::string part;
+    while (pos < msg.length ())
+      {
+        end = msg.find (color_escape, pos);
+        if (end == std::string::npos)
+          part = msg.substr (pos);
+        else
+          part = msg.substr (pos, end - pos);
+        j["extra"].push_back ({
+            { "text", part },
+            { "color", _color_names[col] }
+        });
+
+        if (end == std::string::npos)
+          break;
+
+        pos = end + std::strlen (color_escape);
+        if (pos >= msg.length ())
+          break;
+        col = msg[pos];
+        if (col >= '0' && col <= '9')
+          col = col - '0';
+        else if (col >= 'a' && col <= 'f')
+          col = col - 'a' + 10;
+        else if (col >= 'A' && col <= 'F')
+          col = col - 'A' + 10;
+        ++ pos;
+      }
+
+
     writer.write_string (j.dump ());
     writer.write_byte ((unsigned char)position);
 

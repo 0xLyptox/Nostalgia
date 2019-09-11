@@ -7,6 +7,7 @@
 
 #include "system/atoms.hpp"
 #include "util/position.hpp"
+#include "system/info.hpp"
 #include <stdexcept>
 #include <list>
 #include <caf/all.hpp>
@@ -54,19 +55,16 @@ class scripting_actor : public caf::blocking_actor
 
  private:
   void handle_runcmd (const std::string& cmd, const std::string& msg,
-                      const caf::actor& client);
+                      const client_info& cinfo);
 
   void handle_timeout ();
 
 
   /*!
-   * \brief Loads a command script.
-   * The script is loaded and run (but the docommand function is not invoked).
-   * \param cmd_name The name of the command to load.
-   * \throw command_not_found if a command script does not exist.
-   * \return The newly created script state.
+   * \brief Runs the Lua script at the specified path but does not handle yields!
    */
-  void load_command (const std::string& cmd_path);
+  void run_script_basic (const std::string& script_path);
+
 
   //! \brief Loads all command scripts from the specified directory.
   void load_commands (const std::string& path);
@@ -74,7 +72,8 @@ class scripting_actor : public caf::blocking_actor
   /*!
    * \brief Runs the command script associated with the specified state structure.
    */
-  void run_command (script_state& state);
+  void run_command (script_state& state, const std::string& cmd, const std::string& msg,
+                    const client_info& cinfo);
 
 
   //! \brief Handles requests made by yields.
@@ -83,6 +82,9 @@ class scripting_actor : public caf::blocking_actor
   //! \brief Resumes a script after the request of its yield has been answered to.
   void resume_script (script_state& state, int num_args);
 
+
+  //! \brief Creates a new script state of the given type, possibly creating a new thread for it.
+  script_state& create_state (script_type type, bool new_thread);
 
   //! \brief Removes the specified script state from the state list, and performs some cleanup.
   void delete_state (script_state& state);

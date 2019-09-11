@@ -29,6 +29,9 @@ server_actor::setup ()
   // load blocks
   block::initialize ();
 
+  // run init script
+  this->send (this->script_eng, run_script_basic_atom::value, "scripts/init.lua");
+
   // load commands
   this->send (this->script_eng, load_commands_atom::value, "scripts/commands");
 

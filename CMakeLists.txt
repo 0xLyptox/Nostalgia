@@ -32,8 +32,9 @@ foreach(data_file ${etc_data_files})
 endforeach(data_file)
 
 #
-# Copy script commands
+# Copy scripts
 #
+configure_file(${CMAKE_SOURCE_DIR}/etc/scripts/init.lua ${PROJECT_BINARY_DIR}/scripts/init.lua COPYONLY)
 file(GLOB etc_script_command_files ${CMAKE_SOURCE_DIR}/etc/scripts/commands/*.lua)
 foreach(script_file ${etc_script_command_files})
     get_filename_component(script_name ${script_file} NAME)

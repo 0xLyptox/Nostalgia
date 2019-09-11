@@ -27,7 +27,7 @@ enum yield_code
 // Exception types:
 //
 
-class command_not_found : public std::exception {};
+class script_not_found : public std::exception {};
 
 class lua_exception : public std::runtime_error
 {
@@ -57,31 +57,36 @@ _is_player_object (lua_State *L, int index)
 static int
 player_message (lua_State *L)
 {
-  if (lua_gettop (L) != 2)
+  int num_params = lua_gettop (L);
+  if (num_params < 2)
     {
       // TODO: invalid argument count
       return 0;
     }
 
   // verify arguments
-  if (!_is_player_object (L, -2) || !lua_isstring (L, -1))
+  if (!_is_player_object (L, -num_params))
     {
       // TODO: invalid arguments
       return 0;
     }
 
-  const char *msg = lua_tostring (L, -1);
-
   // extract script state
-  lua_pushvalue (L, -2); // push player table to top of stack
   lua_pushstring (L, "ctx");
-  lua_gettable (L, -2); // get player.ctx
+  lua_gettable (L, -num_params - 1); // get player.ctx
   auto& state = **static_cast<script_state **> (lua_touserdata (L, -1));
   lua_pop (L, 1); // pop ctx
 
+  // construct message from arguments
+  std::string msg;
+  for (int i = num_params - 1; i >= 1; --i)
+    {
+      const char *part = lua_tostring (L, -i);
+      msg += part;
+    }
+
   // send message packet to player
-  auto packet = packets::play::make_chat_message_simple (msg, 0);
-  state.self->send (state.client, packet_out_atom::value, packet.move_data ());
+  state.self->send (state.client, message_atom::value, msg);
 
   return 0;
 }
@@ -155,13 +160,18 @@ scripting_actor::act ()
       running = false;
     },
 
-    [&] (run_command_atom, const std::string& cmd, const std::string& msg, const caf::actor& client) {
-      this->handle_runcmd (cmd, msg, client);
+    [&] (run_script_basic_atom, const std::string& path) {
+      this->run_script_basic (path);
     },
 
-    [&] (load_commands_atom , const std::string& path) {
+    [&] (load_commands_atom, const std::string& path) {
       this->load_commands (path);
     },
+
+    [&] (run_command_atom, const std::string& cmd, const std::string& msg, const client_info& cinfo) {
+      this->handle_runcmd (cmd, msg, cinfo);
+    },
+
 
     // response messages:
 
@@ -200,26 +210,14 @@ scripting_actor::act ()
 }
 
 void
-scripting_actor::handle_runcmd (const std::string& cmd, const std::string& msg, const caf::actor& client)
+scripting_actor::handle_runcmd (const std::string& cmd, const std::string& msg, const client_info& cinfo)
 {
-  auto L = static_cast<lua_State *> (this->vm);
-
-  // create new state
-  this->states.emplace_back ();
-  auto& state = this->states.back ();
-  state.vm = L;
-  state.thread = lua_newthread (L);
-  state.type = script_type::command;
-  state.id = this->next_state_id ++;
-  state.self = this;
-  state.client = client;
-  state.last_yield_code = YC_NONE;
-  state.itr = this->states.end ();
-  -- state.itr;
+  auto& state = this->create_state (script_type::command, true);
+  state.client = cinfo.actor;
 
   try
     {
-      this->run_command (state);
+      this->run_command (state, cmd, msg, cinfo);
     }
   catch (const lua_exception& ex)
     {
@@ -238,6 +236,26 @@ scripting_actor::handle_timeout ()
 
 
 
+script_state&
+scripting_actor::create_state (script_type type, bool new_thread)
+{
+  auto L = static_cast<lua_State *> (this->vm);
+
+  // create new state
+  this->states.emplace_back ();
+  auto& state = this->states.back ();
+  state.vm = L;
+  state.thread = new_thread ? lua_newthread (L) : L;
+  state.type = type;
+  state.id = this->next_state_id ++;
+  state.self = this;
+  state.last_yield_code = YC_NONE;
+  state.itr = this->states.end ();
+  -- state.itr;
+
+  return state;
+}
+
 void
 scripting_actor::delete_state (script_state& state)
 {
@@ -246,14 +264,12 @@ scripting_actor::delete_state (script_state& state)
 
 
 void
-scripting_actor::load_command (const std::string& cmd_path)
+scripting_actor::run_script_basic (const std::string& script_path)
 {
   // open script file
-  // TODO: sanitize command!
-  // TODO: or alternatively, implement a trusted command list and use that.
-  std::ifstream fs (cmd_path);
+  std::ifstream fs (script_path);
   if (!fs)
-    throw command_not_found {};
+    throw script_not_found {};
 
   // read contents into string
   std::stringstream ss;
@@ -272,11 +288,20 @@ scripting_actor::load_command (const std::string& cmd_path)
 }
 
 void
-scripting_actor::run_command (script_state& state)
+scripting_actor::run_command (script_state& state, const std::string& cmd, const std::string& msg,
+                              const client_info& cinfo)
 {
   auto L = static_cast<lua_State *> (state.thread);
-  if (!lua_getglobal (L, "do_command"))
-    throw lua_exception ("Command script does not have a \"do_command\" function!");
+  lua_getglobal (L, "cmd");
+  lua_pushstring (L, ("do_" + cmd).c_str ());
+  lua_gettable (L, -2);
+  bool cmd_exists = lua_isfunction (L, -1);
+  if (!cmd_exists)
+    {
+      this->send (cinfo.actor, message_atom::value, "No such command: " + cmd);
+      this->delete_state (state);
+      return;
+    }
 
   // create player table
   lua_createtable (L, 0, 0);
@@ -290,6 +315,16 @@ scripting_actor::run_command (script_state& state)
   lua_pushstring (L, "ctx");
   auto ctx = static_cast<script_state **> (lua_newuserdata (L, sizeof (script_state *)));
   *ctx = &state;
+  lua_settable (L, -3);
+
+  // player.name
+  lua_pushstring (L, "name");
+  lua_pushstring (L, cinfo.username.c_str ());
+  lua_settable (L, -3);
+
+  // player.uuid
+  lua_pushstring (L, "uuid");
+  lua_pushstring (L, cinfo.uuid.str ().c_str ());
   lua_settable (L, -3);
 
   // player.message
@@ -320,9 +355,9 @@ scripting_actor::load_commands (const std::string& path)
       try
         {
           caf::aout (this) << "    Loading command: " << p.filename ().string () << std::endl;
-          this->load_command (p.string ());
+          this->run_script_basic (p.string ());
         }
-//      catch (const command_not_found&)
+//      catch (const script_not_found&)
 //        {
 //          caf::aout (this) << "Command not found" << std::endl;
 //        }

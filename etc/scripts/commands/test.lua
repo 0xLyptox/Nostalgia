@@ -1,13 +1,11 @@
---[[
-COMMAND: test
---]]
 
+cmd = cmd or {}
 
+function cmd.do_test (player)
+    player:message(YELLOW, 'Hello!')
+    player:message(YELLOW, 'Your name is: ', GREEN, player.name)
+    player:message(YELLOW, 'Your UUID is: ', AQUA, player.uuid)
 
-function do_command (player)
     pos = player:get_position()
-    for k, v in pairs(pos) do
-        player:message(k .. ': ' .. v)
-    end
-    player:message('-------------')
+    player:message(YELLOW, 'Your position is: ', RED, pos.x, YELLOW, ', ', RED, pos.y, YELLOW, ', ', RED, pos.z)
 end
