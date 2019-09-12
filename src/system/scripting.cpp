@@ -129,6 +129,10 @@ scripting_actor::scripting_actor (caf::actor_config& cfg)
   lua_State *L = luaL_newstate ();
   luaL_openlibs (L);
   this->vm = L;
+
+  // create table that will hold all thread references
+  lua_newtable (L);
+  lua_setglobal (L, "_THREADS");
 }
 
 scripting_actor::~scripting_actor ()
@@ -245,7 +249,6 @@ scripting_actor::create_state (script_type type, bool new_thread)
   this->states.emplace_back ();
   auto& state = this->states.back ();
   state.vm = L;
-  state.thread = new_thread ? lua_newthread (L) : L;
   state.type = type;
   state.id = this->next_state_id ++;
   state.self = this;
@@ -253,12 +256,38 @@ scripting_actor::create_state (script_type type, bool new_thread)
   state.itr = this->states.end ();
   -- state.itr;
 
+  // create new thread if needed (if so, store a reference to it in the global thread table).
+  if (new_thread)
+    {
+      std::ostringstream thread_name;
+      thread_name << "thread_" << state.id;
+      lua_getglobal (L, "_THREADS");
+      lua_pushstring (L, thread_name.str ().c_str ());
+      state.thread = lua_newthread (L);
+      lua_settable (L, -3);
+      lua_pop (L, 1);
+    }
+  else
+    state.thread = L;
+
   return state;
 }
 
 void
 scripting_actor::delete_state (script_state& state)
 {
+  if (state.thread != state.vm)
+    {
+      // remove thread from global thread table so that it could be garbage collected.
+      auto L = static_cast<lua_State *> (state.vm);
+      std::ostringstream thread_name;
+      thread_name << "thread_" << state.id;
+      lua_getglobal (L, "_THREADS");
+      lua_pushstring (L, thread_name.str ().c_str ());
+      lua_pushnil (L);
+      lua_settable (L, -3);
+      lua_pop (L, 1);
+    }
   this->states.erase (state.itr);
 }
 
