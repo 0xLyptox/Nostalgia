@@ -12,6 +12,8 @@
 
 namespace packets::play {
 
+  packet_writer make_block_change (block_pos pos, unsigned short block_id);
+
   packet_writer make_chat_message_simple (const std::string& msg, char position);
 
   packet_writer make_disconnect (const std::string& msg);

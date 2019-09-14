@@ -2,7 +2,10 @@
 // Created by Jacob Zhitomirsky on 07-Sep-19.
 //
 
-#include "system/scripting.hpp"
+#include "scripting/scripting.hpp"
+#include "scripting/player.hpp"
+#include "scripting/events.hpp"
+#include "scripting/world.hpp"
 #include "network/packets.hpp"
 #include "util/position.hpp"
 #include <string>
@@ -11,16 +14,9 @@
 #include <algorithm>
 #include <filesystem>
 #include <lua.hpp>
+#include <system/consts.hpp>
 
 using namespace std::chrono_literals;
-
-static unsigned int player_table_magic = 0x13370001;
-
-enum yield_code
-{
-  YC_NONE,
-  YC_GET_POSITION,
-};
 
 
 //
@@ -37,90 +33,6 @@ class lua_exception : public std::runtime_error
   {}
 };
 
-
-//----
-
-static bool
-_is_player_object (lua_State *L, int index)
-{
-  if (!lua_istable (L, index))
-    return false;
-
-  lua_pushstring (L, "magic");
-  lua_gettable (L, index - 1);
-  auto value = (unsigned int)lua_tointeger (L,-1);
-  lua_pop (L, 1);
-
-  return value == player_table_magic;
-}
-
-static int
-player_message (lua_State *L)
-{
-  int num_params = lua_gettop (L);
-  if (num_params < 2)
-    {
-      // TODO: invalid argument count
-      return 0;
-    }
-
-  // verify arguments
-  if (!_is_player_object (L, -num_params))
-    {
-      // TODO: invalid arguments
-      return 0;
-    }
-
-  // extract script state
-  lua_pushstring (L, "ctx");
-  lua_gettable (L, -num_params - 1); // get player.ctx
-  auto& state = **static_cast<script_state **> (lua_touserdata (L, -1));
-  lua_pop (L, 1); // pop ctx
-
-  // construct message from arguments
-  std::string msg;
-  for (int i = num_params - 1; i >= 1; --i)
-    {
-      const char *part = lua_tostring (L, -i);
-      msg += part;
-    }
-
-  // send message packet to player
-  state.self->send (state.client, message_atom::value, msg);
-
-  return 0;
-}
-
-static int
-player_get_position_cont (lua_State *L, int status, lua_KContext kctx)
-{
-  // the player's position is now at the top of the stack
-  // just return it
-  return 1;
-}
-
-static int
-player_get_position (lua_State *L)
-{
-  if (lua_gettop (L) != 1)
-    {
-      // TODO: invalid argument count
-      return 0;
-    }
-
-  // verify arguments
-  if (!_is_player_object (L, -1))
-    {
-      // TODO: invalid arguments
-      return 0;
-    }
-
-  lua_pushinteger (L, YC_GET_POSITION);
-  lua_yieldk (L, 1, NULL, player_get_position_cont);
-  return 0;
-}
-
-
 //----
 
 scripting_actor::scripting_actor (caf::actor_config& cfg)
@@ -132,7 +44,19 @@ scripting_actor::scripting_actor (caf::actor_config& cfg)
 
   // create table that will hold all thread references
   lua_newtable (L);
-  lua_setglobal (L, "_THREADS");
+  lua_setglobal (L, script::globals::thread_table);
+
+  // create table that will hold all event handlers
+  lua_newtable (L);
+  lua_setglobal (L, script::globals::player_event_handler_table);
+
+  // create table that will hold all player objects
+  lua_newtable (L);
+  lua_setglobal (L, script::globals::player_table);
+
+  // create table that will hold all world objects
+  lua_newtable (L);
+  lua_setglobal (L, script::globals::world_table);
 }
 
 scripting_actor::~scripting_actor ()
@@ -177,12 +101,40 @@ scripting_actor::act ()
     },
 
 
+    [&] (register_player_atom, const client_info& info) {
+      this->register_player (info);
+    },
+
+    [&] (unregister_player_atom, unsigned int id) {
+      this->unregister_player (id);
+    },
+
+    [&] (register_world_atom, const world_info& info) {
+      this->register_world (info);
+    },
+
+    [&] (unregister_world_atom, unsigned int id) {
+      this->unregister_world (id);
+    },
+
+
+    // event triggers:
+
+    [&] (s_evt_player_chat_atom, unsigned int client_id, int cont_id, const std::string& msg) {
+      this->handle_player_chat_event_trigger (client_id, cont_id, msg);
+    },
+
+    [&] (s_evt_player_change_block_atom, unsigned int client_id, int cont_id, block_pos pos, unsigned short block_id) {
+      this->handle_player_changeblock_event_trigger (client_id, cont_id, pos, block_id);
+    },
+
+
     // response messages:
 
     [&] (s_get_pos_atom, int sid, player_pos pos, player_rot rot) {
       auto state = this->find_state (sid);
       if (!state) return;
-      if (state->last_yield_code != YC_GET_POSITION) return; // shouldn't happen...
+      if (state->last_yield_code != script::YC_GET_POSITION) return; // shouldn't happen...
 
       // push result
       auto L = static_cast<lua_State *> (state->thread);
@@ -206,6 +158,20 @@ scripting_actor::act ()
       this->resume_script (*state, 1);
     },
 
+    [&] (s_get_world_atom , int sid, unsigned int world_id) {
+      auto state = this->find_state (sid);
+      if (!state) return;
+      if (state->last_yield_code != script::YC_GET_WORLD) return; // shouldn't happen...
+
+      // push result
+      auto L = static_cast<lua_State *> (state->thread);
+
+      script::get_world_object_from_table (L, world_id);
+
+      this->resume_script (*state, 1);
+    },
+
+
     // timeout:
     caf::after (5ms) >> [&] () {
       this->handle_timeout ();
@@ -217,19 +183,9 @@ void
 scripting_actor::handle_runcmd (const std::string& cmd, const std::string& msg, const client_info& cinfo)
 {
   auto& state = this->create_state (script_type::command, true);
-  state.client = cinfo.actor;
+  state.cinfo = cinfo;
 
-  try
-    {
-      this->run_command (state, cmd, msg, cinfo);
-    }
-  catch (const lua_exception& ex)
-    {
-      // TODO:
-      caf::aout (this) << "Lua runtime error: " << ex.what () << std::endl;
-      this->delete_state (state);
-      return;
-    }
+  this->run_command (state, cmd, msg, cinfo);
 }
 
 void
@@ -238,6 +194,25 @@ scripting_actor::handle_timeout ()
 
 }
 
+
+
+client_info*
+scripting_actor::get_client_info (unsigned int player_id)
+{
+  auto itr = this->client_info_table.find (player_id);
+  if (itr == this->client_info_table.end ())
+    return nullptr;
+  return &itr->second;
+}
+
+world_info*
+scripting_actor::get_world_info (unsigned int world_id)
+{
+  auto itr = this->world_info_table.find (world_id);
+  if (itr == this->world_info_table.end ())
+    return nullptr;
+  return &itr->second;
+}
 
 
 script_state&
@@ -252,7 +227,8 @@ scripting_actor::create_state (script_type type, bool new_thread)
   state.type = type;
   state.id = this->next_state_id ++;
   state.self = this;
-  state.last_yield_code = YC_NONE;
+  state.last_yield_code = script::YC_NONE;
+  state.cinfo.id = (unsigned int)-1;
   state.itr = this->states.end ();
   -- state.itr;
 
@@ -261,7 +237,7 @@ scripting_actor::create_state (script_type type, bool new_thread)
     {
       std::ostringstream thread_name;
       thread_name << "thread_" << state.id;
-      lua_getglobal (L, "_THREADS");
+      lua_getglobal (L, script::globals::thread_table);
       lua_pushstring (L, thread_name.str ().c_str ());
       state.thread = lua_newthread (L);
       lua_settable (L, -3);
@@ -282,7 +258,7 @@ scripting_actor::delete_state (script_state& state)
       auto L = static_cast<lua_State *> (state.vm);
       std::ostringstream thread_name;
       thread_name << "thread_" << state.id;
-      lua_getglobal (L, "_THREADS");
+      lua_getglobal (L, script::globals::thread_table);
       lua_pushstring (L, thread_name.str ().c_str ());
       lua_pushnil (L);
       lua_settable (L, -3);
@@ -332,41 +308,10 @@ scripting_actor::run_command (script_state& state, const std::string& cmd, const
       return;
     }
 
-  // create player table
-  lua_createtable (L, 0, 0);
+  script::get_player_object_from_table (L, cinfo.id);
+  lua_pushstring (L, msg.c_str ());
 
-  // player.magic
-  lua_pushstring (L, "magic");
-  lua_pushinteger (L, player_table_magic);
-  lua_settable (L, -3);
-
-  // player.ctx (pointer to script_state)
-  lua_pushstring (L, "ctx");
-  auto ctx = static_cast<script_state **> (lua_newuserdata (L, sizeof (script_state *)));
-  *ctx = &state;
-  lua_settable (L, -3);
-
-  // player.name
-  lua_pushstring (L, "name");
-  lua_pushstring (L, cinfo.username.c_str ());
-  lua_settable (L, -3);
-
-  // player.uuid
-  lua_pushstring (L, "uuid");
-  lua_pushstring (L, cinfo.uuid.str ().c_str ());
-  lua_settable (L, -3);
-
-  // player.message
-  lua_pushstring (L, "message");
-  lua_pushcfunction (L, player_message);
-  lua_settable (L, -3);
-
-  // player.message
-  lua_pushstring (L, "get_position");
-  lua_pushcfunction (L, player_get_position);
-  lua_settable (L, -3);
-
-  this->resume_script (state, 1);
+  this->resume_script (state, 2);
 }
 
 void
@@ -416,8 +361,12 @@ scripting_actor::process_yield (script_state& state)
   state.last_yield_code = (int)yield_code;
   switch (yield_code)
     {
-    case YC_GET_POSITION:
-      this->send (state.client, s_get_pos_atom::value, state.id);
+    case script::YC_GET_POSITION:
+      this->send (state.cinfo.actor, s_get_pos_atom::value, state.id);
+      break;
+
+    case script::YC_GET_WORLD:
+      this->send (state.cinfo.actor, s_get_world_atom::value, state.id);
       break;
 
     default: ;
@@ -428,6 +377,41 @@ scripting_actor::process_yield (script_state& state)
 }
 
 void
+scripting_actor::process_completion (script_state& state)
+{
+  // done
+  if (state.type == script_type::event_handler)
+    {
+      // an event handler has finished
+      // check its event object (which should be the topmost item on the stack)
+      // and see if we need to suppress the default handler
+      auto L = static_cast<lua_State *> (state.thread);
+      lua_pushstring (L, "suppress");
+      lua_gettable (L, -2);
+      bool suppress = lua_toboolean (L, -1);
+      lua_pop (L, 2); // pop both the bool and the event object
+
+      this->send (state.cinfo.actor, event_complete_atom::value, state.cont_id, suppress);
+    }
+
+  this->delete_state (state);
+}
+
+void
+scripting_actor::process_error (script_state& state)
+{
+  if (state.cinfo.id != (unsigned int)-1)
+    {
+      auto L = static_cast<lua_State *> (state.thread);
+      std::ostringstream err;
+      err << color_escape << "4" << "Error" << color_escape << "c" << ": " << lua_tostring (L, -1);
+      this->send (state.cinfo.actor, message_atom::value, err.str ());
+    }
+
+  this->delete_state (state);
+}
+
+void
 scripting_actor::resume_script (script_state& state, int num_args)
 {
   auto L = static_cast<lua_State *> (state.thread);
@@ -435,8 +419,7 @@ scripting_actor::resume_script (script_state& state, int num_args)
   int status = lua_resume (L, NULL, num_args);
   if (status == LUA_OK)
     {
-      // finished executing command
-      this->delete_state (state);
+      this->process_completion (state);
     }
   else if (status == LUA_YIELD)
     {
@@ -445,7 +428,9 @@ scripting_actor::resume_script (script_state& state, int num_args)
     }
   else
     {
-      // TODO: error
-      throw lua_exception ("Error");
+      this->process_error (state);
     }
 }
+
+
+

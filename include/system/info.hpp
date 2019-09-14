@@ -41,6 +41,7 @@ inspect (Inspector& f, client_info& info)
  */
 struct world_info
 {
+  unsigned int id;
   caf::actor actor;
   std::string name;
 };
@@ -49,7 +50,7 @@ template<typename Inspector>
 typename Inspector::result_type
 inspect (Inspector& f, world_info& info)
 {
-  return f (caf::meta::type_name ("world_info"), info.actor, info.name);
+  return f (caf::meta::type_name ("world_info"), info.id, info.actor, info.name);
 }
 
 #endif //NOSTALGIA_INFO_HPP

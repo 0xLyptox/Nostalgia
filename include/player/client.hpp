@@ -11,8 +11,10 @@
 #include "util/position.hpp"
 #include "caf/all.hpp"
 #include "window/window.hpp"
+#include <functional>
 #include <set>
 #include <utility>
+#include <vector>
 
 // forward decs:
 class packet_reader;
@@ -58,9 +60,13 @@ class client_actor : public caf::event_based_actor
   double time_since_keep_alive = 0;
   uint32_t keep_alive_id = (uint32_t)-1;
 
+  std::map<int, std::function<void ()>> handler_continuations;
+  std::map<int, bool> immediate_continuations;
+  int next_ev_cont_id = 1;
+
  public:
   explicit client_actor (caf::actor_config& cfg, const caf::actor& srv,
-                         caf::actor script_eng, unsigned int client_id);
+                         const caf::actor& script_eng, unsigned int client_id);
 
   caf::behavior make_behavior () override;
 
@@ -90,8 +96,7 @@ class client_actor : public caf::event_based_actor
   void handle_player_block_placement (packet_reader& reader);
 
 
-  void handle_command (std::string&& msg);
-
+  void handle_command (const std::string& msg);
 
   /*!
    * \brief Sends the contents of the specified packet writer.
@@ -120,6 +125,30 @@ class client_actor : public caf::event_based_actor
 
   //! \brief Returns the slot item currently held by the player.
   slot* held_item ();
+
+  //! \brief Invoked when the actor exits.
+  void exit_handler ();
+
+ private:
+  friend struct event_trigger_continuation;
+  struct event_trigger_continuation
+  {
+    client_actor& cl;
+    int id;
+
+   public:
+    explicit event_trigger_continuation (client_actor& cl, int cont_id);
+    void set_default_handler (std::function<void ()>&& f);
+  };
+
+  template<typename Atom, typename... Args>
+  event_trigger_continuation
+  fire_event (Atom atom, Args&&... args)
+  {
+    int cont_id = this->next_ev_cont_id ++;
+    this->send (this->script_eng, atom, this->info.id, cont_id, std::forward<Args> (args)...);
+    return event_trigger_continuation { *this, cont_id };
+  }
 };
 
 #endif //NOSTALGIA_CLIENT_HPP

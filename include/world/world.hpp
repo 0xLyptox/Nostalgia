@@ -6,6 +6,7 @@
 #define NOSTALGIA_WORLD_HPP
 
 #include "system/consts.hpp"
+#include "system/info.hpp"
 #include "world/chunk.hpp"
 #include <string>
 #include <map>
@@ -21,17 +22,18 @@ struct lighting_update
 
 class world : public caf::blocking_actor
 {
-  std::string name;
+  world_info info;
   std::map<std::pair<int, int>, std::unique_ptr<chunk>> chunks;
 
+  caf::actor srv;
+  caf::actor script_eng;
   caf::actor world_gen;
 
   std::stack<lighting_update> lighting_updates;
 
  public:
-  inline const std::string get_name () const { return this->name; }
-
-  world (caf::actor_config& cfg, const std::string& name, caf::actor world_gen);
+  world (caf::actor_config& cfg, unsigned int id, const std::string& name,
+      const caf::actor& srv, const caf::actor& script_eng, const caf::actor& world_gen);
 
   virtual void act () override;
 

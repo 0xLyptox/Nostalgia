@@ -10,6 +10,7 @@
 #include "system/info.hpp"
 #include <stdexcept>
 #include <list>
+#include <map>
 #include <caf/all.hpp>
 
 
@@ -19,6 +20,7 @@ class scripting_actor;
 enum class script_type
 {
   command,
+  event_handler,
 };
 
 /*!
@@ -30,9 +32,10 @@ struct script_state
   script_type type;
   int id;
   void *vm, *thread; // lua_State*
-  caf::actor client;
+  client_info cinfo;
   scripting_actor *self;
   int last_yield_code;
+  int cont_id; // continuation ID for event handlers
 };
 
 /*!
@@ -44,6 +47,9 @@ class scripting_actor : public caf::blocking_actor
   std::list<script_state> states;
   int next_state_id = 1;
 
+  std::map<unsigned int, client_info> client_info_table;
+  std::map<unsigned int, world_info> world_info_table;
+
  public:
   scripting_actor (caf::actor_config& cfg);
   ~scripting_actor ();
@@ -53,11 +59,31 @@ class scripting_actor : public caf::blocking_actor
   //! \brief Searches for the script state whose ID matches the specified argument.
   script_state *find_state (int sid);
 
+  //! \brief Returns the client info structure associated with the specified player/client ID.
+  client_info *get_client_info (unsigned int player_id);
+
+  //! \brief Returns the world info structure associated with the specified world ID.
+  world_info *get_world_info (unsigned int world_id);
+
  private:
   void handle_runcmd (const std::string& cmd, const std::string& msg,
                       const client_info& cinfo);
 
   void handle_timeout ();
+
+
+  //! \brief Creates a player object and inserts it into the global player table.
+  void register_player (const client_info& cinfo);
+
+  //! \brief Removes a player from the global player table.
+  void unregister_player (unsigned int player_id);
+
+
+  //! \brief Creates a world object and inserts it into the global world table.
+  void register_world (const world_info& info);
+
+  //! \brief Removes a world from the global world table.
+  void unregister_world (unsigned int world_id);
 
 
   /*!
@@ -79,6 +105,12 @@ class scripting_actor : public caf::blocking_actor
   //! \brief Handles requests made by yields.
   void process_yield (script_state& state);
 
+  //! \brief Handles a state after it has finished executing its script.
+  void process_completion (script_state& state);
+
+  //! \brief Handles errors thrown in resume_script.
+  void process_error (script_state& state);
+
   //! \brief Resumes a script after the request of its yield has been answered to.
   void resume_script (script_state& state, int num_args);
 
@@ -88,6 +120,25 @@ class scripting_actor : public caf::blocking_actor
 
   //! \brief Removes the specified script state from the state list, and performs some cleanup.
   void delete_state (script_state& state);
+
+
+  //
+  // event trigger handlers:
+  //
+
+  void handle_player_chat_event_trigger (unsigned int client_id, int cont_id, const std::string& msg);
+  void handle_player_changeblock_event_trigger (unsigned int client_id, int cont_id, block_pos pos, unsigned short block_id);
+
+  /*!
+   * \brief Creates a script state and a rudimentary event object for a player event invocation.
+   * \param event_name The name of the event that is being triggered
+   * \param client_id Client ID
+   * \param cont_id Event handler continuation ID.
+   * \return Returns a pointer to a script state if there is a handler available, otherwise null.
+   */
+  script_state *start_player_event_trigger (const char *event_name, unsigned int client_id, int cont_id);
+
+  void run_event_trigger (script_state& state);
 };
 
 #endif //NOSTALGIA_SCRIPTING_HPP

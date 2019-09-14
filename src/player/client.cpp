@@ -17,11 +17,22 @@
 
 
 client_actor::client_actor (caf::actor_config& cfg, const caf::actor& srv,
-                            caf::actor script_eng, unsigned int client_id)
+                            const caf::actor& script_eng, unsigned int client_id)
   : caf::event_based_actor (cfg), srv (srv), script_eng (script_eng), curr_state (connection_state::handshake),
     inv (window_spec::player_inventory)
 {
   this->info.id = client_id;
+
+  this->set_exit_handler ([this] (caf::exit_msg& msg) {
+    this->exit_handler ();
+  });
+}
+
+
+void
+client_actor::exit_handler ()
+{
+  this->send (this->script_eng, unregister_player_atom::value, this->info.id);
 }
 
 
@@ -69,10 +80,31 @@ client_actor::make_behavior ()
         this->send (this->broker, packet_out_atom::value, packet.move_data ());
       },
 
+      [this] (event_complete_atom, int cont_id, bool suppress) {
+        auto itr = this->handler_continuations.find (cont_id);
+        if (itr != this->handler_continuations.end ())
+          {
+            if (!suppress)
+              itr->second (); // call continutation
+
+            this->handler_continuations.erase (itr);
+          }
+        else
+          {
+            // continuation probably did not get inserted yet because we were faster
+            // mark this continuation as completed and store suppression result.
+            this->immediate_continuations[cont_id] = suppress;
+          }
+      },
+
       // messages from scripting engine:
 
       [this] (s_get_pos_atom, int sid) {
         this->send (this->script_eng, s_get_pos_atom::value, sid, this->pos, this->rot);
+      },
+
+      [this] (s_get_world_atom, int sid) {
+        this->send (this->script_eng, s_get_world_atom::value, sid, this->curr_world.id);
       },
   };
 }
@@ -237,7 +269,6 @@ client_actor::handle_login_state_packet (packet_reader& reader)
 }
 
 
-
 void
 client_actor::handle_handshake_packet (packet_reader& reader)
 {
@@ -281,6 +312,9 @@ client_actor::handle_login_start_packet (packet_reader& reader)
         // update server
         this->send (this->srv, set_client_atom::value, this->info.id, this->info);
 
+        // inform scripting engine
+        this->send (this->script_eng, register_player_atom::value, this->info);
+
         // transition into PLAY state.
         this->curr_state = connection_state::play;
         this->send_packet (packets::login::make_login_success (this->info.uuid, username));
@@ -299,13 +333,15 @@ client_actor::handle_chat_message_packet (packet_reader& reader)
   // handle commands
   if (msg.find ('/') == 0)
     {
-      this->handle_command (std::move (msg));
+      this->handle_command (msg);
       return;
     }
 
-  auto out_msg = this->info.username + ": " + msg;
-
-  this->send (this->srv, global_message_atom::value, out_msg);
+  this->fire_event (s_evt_player_chat_atom::value, msg).set_default_handler (
+      [=] () {
+        auto out_msg = this->info.username + ": " + msg;
+        this->send (this->srv, global_message_atom::value, out_msg);
+      });
 }
 
 void
@@ -382,9 +418,10 @@ client_actor::handle_player_digging_packet (packet_reader& reader)
   block_pos pos = reader.read_position ();
   char face = reader.read_byte ();
 
-  caf::aout (this) << "Digging at (" << pos.x << ", " << pos.y << ", " << pos.z << ") [Status: " << status << ", Face: " << (int)face << "]" << std::endl;
-
-  this->send (this->curr_world.actor, set_block_atom::value, pos, (unsigned short)0);
+  this->fire_event (s_evt_player_change_block_atom::value, pos, (unsigned short)0).set_default_handler (
+      [=] () {
+        this->send (this->curr_world.actor, set_block_atom::value, pos, (unsigned short)0);
+      });
 }
 
 void
@@ -454,12 +491,16 @@ client_actor::handle_player_block_placement (packet_reader& reader)
   auto& item_name = registries::name (ITEM_REGISTRY, item->id ());
   auto block_id = (unsigned short)block::find (item_name).get_id ();
 
-  this->send (this->curr_world.actor, set_block_atom::value, place_pos, block_id);
+  this->fire_event (s_evt_player_change_block_atom::value, place_pos, block_id).set_default_handler (
+      [=] () {
+        this->send (this->curr_world.actor, set_block_atom::value, place_pos, block_id);
+      });
+
 }
 
 
 void
-client_actor::handle_command (std::string&& msg)
+client_actor::handle_command (const std::string& msg)
 {
   std::istringstream ss (msg);
   std::string cmd_name;
@@ -599,4 +640,30 @@ slot*
 client_actor::held_item ()
 {
   return this->inv.get_slot ("hotbar", this->hand_slot_idx);
+}
+
+
+//----
+
+client_actor::event_trigger_continuation::event_trigger_continuation (client_actor& cl, int cont_id)
+: cl (cl), id (cont_id)
+{}
+
+void
+client_actor::event_trigger_continuation::set_default_handler (std::function<void ()>&& f)
+{
+  auto& imm = this->cl.immediate_continuations;
+  auto itr = imm.find (this->id);
+  if (itr == imm.end ())
+    // defer continuation execution to when event completes
+    this->cl.handler_continuations[this->id] = std::move (f);
+  else
+    {
+      // event already completed, so call continuation immediately if
+      // the default handler was not suppressed.
+      auto suppress = itr->second;
+      if (!suppress)
+        f ();
+      imm.erase (itr);
+    }
 }

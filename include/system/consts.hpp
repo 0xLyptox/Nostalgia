@@ -54,6 +54,7 @@ enum in_packet_id
 enum out_packet_id
 {
   // play state
+  OPI_BLOCK_CHANGE = 0x0B,
   OPI_CHAT_MESSAGE = 0x0E,
   OPI_DISCONNECT = 0x1A,
   OPI_UNLOAD_CHUNK = 0x1D,

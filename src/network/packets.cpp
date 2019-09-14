@@ -33,6 +33,17 @@ static std::vector<std::string> _color_names {
 namespace packets::play {
 
   packet_writer
+  make_block_change (block_pos pos, unsigned short block_id)
+  {
+    packet_writer writer;
+    writer.write_varlong (OPI_BLOCK_CHANGE);
+    writer.write_position (pos);
+    writer.write_varlong (block_id);
+
+    return writer;
+  }
+
+  packet_writer
   make_chat_message_simple (const std::string& msg, char position)
   {
     packet_writer writer;

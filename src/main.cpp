@@ -6,7 +6,7 @@
 
 #include "player/client.hpp"
 #include "system/server.hpp"
-#include "system/scripting.hpp"
+#include "scripting/scripting.hpp"
 #include "network/packet_writer.hpp"
 
 
@@ -47,9 +47,6 @@ client_broker_impl (caf::io::broker *self, caf::io::connection_handle hdl,
     [=] (const caf::io::connection_closed_msg& msg) {
       caf::aout (self) << "Connection closed." << std::endl;
       self->close (hdl);
-
-      // kill associated client actor
-      self->send (state->cl, caf::exit_msg { self->address (), caf::exit_reason::user_shutdown });
 
       // remove client from server
       self->send (state->srv, del_client_atom::value, state->client_id);

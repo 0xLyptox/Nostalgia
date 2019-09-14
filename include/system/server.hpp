@@ -21,6 +21,8 @@ class server_actor : public caf::event_based_actor
   caf::actor world_gen;
   caf::actor script_eng;
 
+  unsigned int next_world_id = 1;
+
  public:
   explicit server_actor (caf::actor_config& cfg, const caf::actor& script_eng);
 

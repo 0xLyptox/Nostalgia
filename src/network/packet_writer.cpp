@@ -104,8 +104,8 @@ packet_writer::write_uuid_string (const uuid_t& uuid)
 void
 packet_writer::write_position (block_pos pos)
 {
-  this->write_long ((((uint64_t)pos.x & 0x3FFFFFF) << 38)
-      | ((pos.z & 0x3FFFFFF) << 12) | ((uint64_t)pos.y & 0xFFF));
+  this->write_long ((((int64_t)pos.x & 0x3FFFFFF) << 38)
+      | (((int64_t)pos.z & 0x3FFFFFF) << 12) | ((int64_t)pos.y & 0xFFF));
 }
 
 void

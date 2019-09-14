@@ -12,9 +12,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4483910a-aab1-4cee-87f3-37c6f26fe2bb" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/include/scripting/common.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/scripting/events.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/scripting/player.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/scripting/world.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripting/common.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripting/events.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripting/player.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripting/scripting.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripting/world.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/etc/scripts/commands/test.lua" beforeDir="false" afterPath="$PROJECT_DIR$/etc/scripts/commands/test.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/system/scripting.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/scripting.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/network/packets.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/network/packets.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/player/client.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/player/client.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/atoms.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/atoms.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/consts.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/consts.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/info.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/scripting.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/scripting.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/server.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/server.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/world.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/world.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/network/packet_writer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packet_writer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/network/packets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packets.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/player/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/player/client.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/system/scripting.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/system/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/server.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/world.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/world.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -45,16 +69,16 @@
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\Projects\C++\Nostalgia\external\lua" />
-      <recent name="E:\Projects\C++\Nostalgia\etc" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\src\scripting" />
+      <recent name="E:\Projects\C++\Nostalgia\include\scripting" />
       <recent name="E:\Projects\C++\Nostalgia\include\util" />
       <recent name="E:\Projects\C++\Nostalgia\etc\data" />
       <recent name="E:\Projects\C++\Nostalgia\external\nlohmann\include\nlohmann" />
-      <recent name="E:\Projects\C++\Nostalgia\external" />
-      <recent name="E:\Projects\C++\Nostalgia\include\window" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\external\lua" />
+      <recent name="E:\Projects\C++\Nostalgia\etc" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -97,7 +121,15 @@
       <workItem from="1568070161947" duration="3670000" />
       <workItem from="1568142623077" duration="2306000" />
       <workItem from="1568235046229" duration="5697000" />
-      <workItem from="1568314010422" duration="827000" />
+      <workItem from="1568314010422" duration="3177000" />
+      <workItem from="1568322355583" duration="318000" />
+      <workItem from="1568323231856" duration="263000" />
+      <workItem from="1568372894582" duration="290000" />
+      <workItem from="1568373202722" duration="5997000" />
+      <workItem from="1568383293736" duration="8546000" />
+      <workItem from="1568452769820" duration="1753000" />
+      <workItem from="1568457181069" duration="20569000" />
+      <workItem from="1568495770242" duration="2296000" />
     </task>
     <servers />
   </component>

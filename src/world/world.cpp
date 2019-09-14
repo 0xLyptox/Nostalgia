@@ -5,21 +5,28 @@
 #include "world/world.hpp"
 #include "world/blocks.hpp"
 #include "system/atoms.hpp"
+#include "network/packets.hpp"
 
 #define MAX(A, B) (((A) > (B)) ? (A) : (B))
 #define ABS(A) (((A) < 0) ? (-(A)) : (A))
 
 
-world::world (caf::actor_config& cfg, const std::string& name, caf::actor world_gen)
-  : caf::blocking_actor (cfg), name (name), world_gen (world_gen)
+world::world (caf::actor_config& cfg, unsigned int id, const std::string& name,
+    const caf::actor& srv, const caf::actor& script_eng, const caf::actor& world_gen)
+  : caf::blocking_actor (cfg), srv (srv), script_eng (script_eng), world_gen (world_gen)
 {
-  // nop
+  this->info.id = id;
+  this->info.actor = this;
+  this->info.name = name;
 }
 
 
 void
 world::act ()
 {
+  // register with scripting engine
+  this->send (this->script_eng, register_world_atom::value, this->info);
+
   this->handle_messages ();
 }
 
@@ -29,7 +36,7 @@ world::handle_messages ()
 {
   bool running = true;
   this->receive_while (running) (
-      [this] (request_chunk_data_atom, int cx, int cz, caf::actor broker) {
+      [this] (request_chunk_data_atom, int cx, int cz, const caf::actor& broker) {
         // find this chunk
         auto ch = this->find_chunk (cx, cz);
         if (ch)
@@ -54,13 +61,15 @@ world::handle_messages ()
 
       [this] (set_block_atom, block_pos pos, unsigned short id) {
         chunk_pos cpos = pos;
-        caf::aout (this) << "World: setblock at (" << pos.x << ", " << pos.y << ", " << pos.z << ") to " << id << std::endl;
+//        caf::aout (this) << "World: setblock at (" << pos.x << ", " << pos.y << ", " << pos.z << ") to " << id << std::endl;
         auto ch = this->find_chunk (cpos.x, cpos.z);
         if (ch)
           {
-            caf::aout (this) << "Found chunk at: " << cpos.x << ", " << cpos.z << std::endl;
-            caf::aout (this) << "Local coordinates: " << (pos.x & 0xf) << ", " << pos.y << ", " << (pos.z & 0xf) << std::endl;
             ch->set_block_id (pos.x & 0xf, pos.y, pos.z & 0xf, id);
+
+            // update players
+            // TODO: Send this update only to players that are in range!!!
+            this->send (this->srv, broadcast_packet_atom::value, packets::play::make_block_change (pos, id).move_data ());
 
             this->lighting_updates.push(lighting_update { pos });
             this->handle_lighting ();
@@ -87,7 +96,7 @@ world::handle_lighting (int max_updates)
       auto pos = update.pos;
       auto id = this->get_block_id (pos.x, pos.y, pos.z);
 
-      caf::aout (this) << "LIGHTING: Handling update (" << pos.x << ", " << pos.y << ", " << pos.z << "): " << id << std::endl;
+//      caf::aout (this) << "LIGHTING: Handling update (" << pos.x << ", " << pos.y << ", " << pos.z << "): " << id << std::endl;
 
       if (is_opaque_block (id))
         {
@@ -103,7 +112,7 @@ world::handle_lighting (int max_updates)
           char sl_front = this->get_sky_light (pos.x, pos.y, pos.z + 1);
           char sl_back = this->get_sky_light (pos.x, pos.y, pos.z - 1);
 
-          caf::aout (this) << "LIGHTING: Neighbour values: " << (int)sl_up << ", " <<(int)sl_down << ", " <<(int)sl_right << ", " <<(int)sl_left << ", " <<(int)sl_front << ", " <<(int)sl_back << std::endl;
+//          caf::aout (this) << "LIGHTING: Neighbour values: " << (int)sl_up << ", " <<(int)sl_down << ", " <<(int)sl_right << ", " <<(int)sl_left << ", " <<(int)sl_front << ", " <<(int)sl_back << std::endl;
 
           char this_sl = 0;
           if (sl_up == 15)
@@ -116,7 +125,7 @@ world::handle_lighting (int max_updates)
           if (this_sl < 0)
             this_sl = 0;
 
-          caf::aout (this) << "LIGHTING: Calculated value: " << (int)this_sl << std::endl;
+//          caf::aout (this) << "LIGHTING: Calculated value: " << (int)this_sl << std::endl;
 
           this->set_sky_light (pos.x, pos.y, pos.z, (unsigned char)this_sl);
 
