@@ -1,6 +1,20 @@
-//
-// Created by Jacob Zhitomirsky on 14-Sep-19.
-//
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "scripting/world.hpp"
 #include "scripting/scripting.hpp"
@@ -34,9 +48,19 @@ create_world_object (lua_State *L, scripting_actor *engine, const world_info& in
   lua_pushstring (L, info.name.c_str ());
   lua_settable (L, -3);
 
-  // world.set_block()
+  // world:set_block()
   lua_pushstring (L, "set_block");
   lua_pushcfunction (L, script::world_set_block);
+  lua_settable (L, -3);
+
+  // world:set_block()
+  lua_pushstring (L, "get_block");
+  lua_pushcfunction (L, script::world_get_block);
+  lua_settable (L, -3);
+
+  // world:save()
+  lua_pushstring (L, "save");
+  lua_pushcfunction (L, script::world_save);
   lua_settable (L, -3);
 }
 
@@ -96,6 +120,62 @@ world_set_block (lua_State *L)
   auto block_id = (unsigned short)lua_tointeger (L, -1);
   engine->send (info->actor, set_block_atom::value, pos, block_id);
 
+  return 0;
+}
+
+static int
+_world_get_block_cont (lua_State *L, int status, lua_KContext kctx)
+{
+  return 1;
+}
+
+int
+world_get_block (lua_State *L)
+{
+  int num_params = lua_gettop (L);
+  if (num_params != 4)
+    {
+      // TODO: invalid argument count
+      return 0;
+    }
+
+  // verify arguments
+  if (!script::is_world_object (L, -4) || !lua_isinteger (L, -3)
+      || !lua_isinteger (L, -2) || !lua_isinteger (L, -1))
+    {
+      // TODO: invalid arguments
+      return 0;
+    }
+
+  auto engine = script::get_scripting_actor_from_object (L, -num_params);
+  auto id = (unsigned int)script::get_int_from_table (L, -num_params, "id");
+
+  lua_pushinteger (L, YC_GET_BLOCK);
+  lua_pushinteger (L, id);
+  lua_pushvalue (L, -5); // x
+  lua_pushvalue (L, -5); // y
+  lua_pushvalue (L, -5); // z
+  lua_yieldk (L, 5, NULL, _world_get_block_cont);
+  return 0;
+}
+
+int
+world_save (lua_State *L)
+{
+  int num_params = lua_gettop (L);
+  if (num_params != 1 || !script::is_world_object (L, -1))
+    {
+      // TODO: invalid arguments
+      return 0;
+    }
+
+  auto engine = script::get_scripting_actor_from_object (L, -num_params);
+  auto id = (unsigned int)script::get_int_from_table (L, -num_params, "id");
+  auto info = engine->get_world_info (id);
+  if (!info)
+    return 0;
+
+  engine->send (info->actor, save_atom::value);
   return 0;
 }
 

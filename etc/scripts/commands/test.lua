@@ -27,18 +27,21 @@ function sphere(world, x, y, z, radius, block)
 end
 
 function cmd.do_test(player, msg)
-    player:add_event_listener('changeblock', function (ev)
-        world = ev.target:get_world()
-        height = 10
+    --player:add_event_listener('changeblock', function (ev)
+    --    world = ev.target:get_world()
+    --    height = 10
+    --
+    --    sphere(world, ev.block_pos.x, ev.block_pos.y + height, ev.block_pos.z, 5, 144)
+    --
+    --    for i = 0, height do
+    --        world:set_block(ev.block_pos.x, ev.block_pos.y + i, ev.block_pos.z, 73)
+    --    end
+    --
+    --    player:message('Planted tree at: ' , GREEN, table_str(ev.block_pos))
+    --end)
+    --
+    --player:message('Added event')
 
-        sphere(world, ev.block_pos.x, ev.block_pos.y + height, ev.block_pos.z, 5, 144)
-
-        for i = 0, height do
-            world:set_block(ev.block_pos.x, ev.block_pos.y + i, ev.block_pos.z, 73)
-        end
-
-        player:message('Planted tree at: ' , GREEN, table_str(ev.block_pos))
-    end)
-
-    player:message('Added event')
+    player:message(RED, 'Saving world')
+    player:get_world():save()
 end

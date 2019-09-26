@@ -1,11 +1,25 @@
-//
-// Created by Jacob Zhitomirsky on 10-May-19.
-//
-
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "world/world.hpp"
 #include "world/blocks.hpp"
 #include "system/atoms.hpp"
 #include "network/packets.hpp"
+#include "world/provider.hpp"
 
 #define MAX(A, B) (((A) > (B)) ? (A) : (B))
 #define ABS(A) (((A) < 0) ? (-(A)) : (A))
@@ -18,16 +32,23 @@ world::world (caf::actor_config& cfg, unsigned int id, const std::string& name,
   this->info.id = id;
   this->info.actor = this;
   this->info.name = name;
+
+  this->provider = make_world_provider ("nw1");
 }
 
 
 void
 world::act ()
 {
+  // open world file/directory
+  this->provider->open ("worlds/" + this->info.name + ".nw1");
+
   // register with scripting engine
   this->send (this->script_eng, register_world_atom::value, this->info);
 
   this->handle_messages ();
+
+  this->provider->close ();
 }
 
 //! \brief Handles actor messages.
@@ -36,17 +57,15 @@ world::handle_messages ()
 {
   bool running = true;
   this->receive_while (running) (
-      [this] (request_chunk_data_atom, int cx, int cz, const caf::actor& broker) {
-        // find this chunk
-        auto ch = this->find_chunk (cx, cz);
-        if (ch)
+      [=] (request_chunk_data_atom, int cx, int cz, const caf::actor& broker) {
+        // try to load chunk first
+        if (auto ch = this->load_chunk (cx, cz))
           {
-            // chunk already exists, send it.
             this->send (broker, packet_out_atom::value, ch->make_chunk_data_packet ().move_data ());
           }
         else
           {
-            // chunk does not exist, generate it.
+            // generate the chunk if the chunk is not stored in memory and in provider.
             this->request (this->world_gen, caf::infinite, generate_atom::value, chunk_pos (cx, cz), "flatgrass").receive (
                 [this, cx, cz, broker] (chunk ch) {
                   auto key = std::make_pair (cx, cz);
@@ -59,13 +78,14 @@ world::handle_messages ()
           }
       },
 
-      [this] (set_block_atom, block_pos pos, unsigned short id) {
+      [=] (set_block_atom, block_pos pos, unsigned short id) {
         chunk_pos cpos = pos;
 //        caf::aout (this) << "World: setblock at (" << pos.x << ", " << pos.y << ", " << pos.z << ") to " << id << std::endl;
         auto ch = this->find_chunk (cpos.x, cpos.z);
         if (ch)
           {
             ch->set_block_id (pos.x & 0xf, pos.y, pos.z & 0xf, id);
+            ch->mark_dirty ();
 
             // update players
             // TODO: Send this update only to players that are in range!!!
@@ -76,9 +96,25 @@ world::handle_messages ()
           }
       },
 
-      [&] (stop_atom) {
+      [=] (save_atom) {
+        this->save ();
+      },
+
+      [&] (stop_atom, const caf::actor& requester) {
         running = false;
-      });
+
+        // save world
+        this->save ();
+
+        this->send (requester, stop_response_atom::value, this->get_typed_id ());
+      },
+
+      // scripting stuff:
+
+      [=] (s_get_block_id_atom, int sid, int x, int y, int z) {
+        this->send (this->script_eng, s_get_block_id_atom::value, sid, this->get_block_id (x, y, z));
+      }
+  );
 }
 
 //! \brief Processes queued sky/block lighting updates
@@ -150,6 +186,23 @@ world::handle_lighting (int max_updates)
 }
 
 
+void
+world::save ()
+{
+  caf::aout (this) << "Saving world: " << this->info.name << std::endl;
+
+  for (auto& p : this->chunks)
+    {
+      auto& ch = *p.second;
+      if (ch.is_dirty ())
+        {
+          this->provider->save_chunk (ch);
+          ch.mark_dirty (false);
+        }
+    }
+}
+
+
 
 chunk*
 world::find_chunk (int cx, int cz)
@@ -160,6 +213,27 @@ world::find_chunk (int cx, int cz)
     return nullptr;
   return itr->second.get ();
 }
+
+chunk*
+world::load_chunk (int cx, int cz)
+{
+  if (auto ch_ptr = this->find_chunk (cx, cz))
+    return ch_ptr;
+
+  // chunk not stored in memory, consult provider.
+  try
+    {
+      auto ch = this->provider->load_chunk (cx, cz);
+      auto ch_ptr = new chunk (std::move (ch));
+      this->chunks[std::make_pair (cx, cz)] = std::unique_ptr<chunk> (ch_ptr);
+      return ch_ptr;
+    }
+  catch (const chunk_load_error&)
+    {
+      return nullptr;
+    }
+}
+
 
 void
 world::set_block_id (int x, int y, int z, unsigned short id)

@@ -1,6 +1,20 @@
-//
-// Created by Jacob Zhitomirsky on 09-May-19.
-//
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "system/server.hpp"
 #include "system/atoms.hpp"
@@ -11,6 +25,7 @@
 #include "world/blocks.hpp"
 #include "system/registries.hpp"
 #include "scripting/scripting.hpp"
+#include <filesystem>
 
 
 server_actor::server_actor (caf::actor_config& cfg, const caf::actor& script_eng)
@@ -23,6 +38,9 @@ server_actor::server_actor (caf::actor_config& cfg, const caf::actor& script_eng
 void
 server_actor::setup ()
 {
+  // create directories
+  std::filesystem::create_directory ("worlds");
+
   // load registries
   registries::initialize ();
 
@@ -45,6 +63,50 @@ server_actor::setup ()
   ++ this->next_world_id;
 }
 
+void
+server_actor::stop ()
+{
+  if (this->stopping)
+    return;
+  this->stopping = true;
+
+  // disconnect all clients
+  caf::aout (this) << "Disconnecting all connected clients" << std::endl;
+  for (auto& p : this->connected_clients)
+    this->send (p.second.actor, stop_atom::value, this);
+
+  // save and stop worlds
+  caf::aout (this) << "Stopping and saving worlds" << std::endl;
+  for (auto& p : this->worlds)
+    this->send (p.second.actor, stop_atom::value, this);
+}
+
+void
+server_actor::handle_stop_response (typed_id id)
+{
+  if (id.type == actor_type::world)
+    {
+      auto itr = std::find_if (this->worlds.begin (), this->worlds.end (),
+          [id] (auto& p) { return p.second.id == id.id; });
+      if (itr != this->worlds.end ())
+        this->worlds.erase (itr);
+    }
+  else if (id.type == actor_type::client)
+    {
+      caf::aout (this) << "Got response from client" << std::endl;
+      auto itr = this->connected_clients.find (id.id);
+      if (itr != this->connected_clients.end ())
+        this->connected_clients.erase (itr);
+    }
+
+  if (this->worlds.empty () && this->connected_clients.empty ())
+    {
+      // server can terminate now
+      if (this->stop_requester)
+        this->send (this->stop_requester, stop_response_atom::value, typed_id { actor_type::server, 0 });
+    }
+}
+
 
 caf::behavior
 server_actor::make_behavior ()
@@ -55,7 +117,17 @@ server_actor::make_behavior ()
         return true;
       },
 
-      [=] (add_client_atom, caf::actor client, unsigned int client_id) {
+      [=] (stop_atom, const caf::actor& requester) {
+        this->stop_requester = requester;
+        this->stop ();
+      },
+
+      [=] (stop_response_atom, typed_id id) {
+        this->handle_stop_response (id);
+      },
+
+      [=] (add_client_atom, const caf::actor& client, unsigned int client_id) {
+        if (this->stopping) return;
         this->connected_clients[client_id] = client_info ();
         client_info& info = this->connected_clients[client_id];
         info.actor = client;
@@ -76,6 +148,7 @@ server_actor::make_behavior ()
 
       [=] (set_client_atom, unsigned int client_id,
               const client_info& info) {
+        if (this->stopping) return;
         auto itr = this->connected_clients.find (client_id);
         if (itr != this->connected_clients.end ())
           {

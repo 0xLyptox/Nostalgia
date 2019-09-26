@@ -12,32 +12,62 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4483910a-aab1-4cee-87f3-37c6f26fe2bb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/include/scripting/common.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/scripting/events.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/scripting/player.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/include/scripting/world.hpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripting/common.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripting/events.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripting/player.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripting/scripting.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/scripting/world.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/etc/scripts/commands/weird.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/system/console.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/world/provider.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/world/providers/nw1/compress.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/include/world/providers/nw1/nw1.hpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/system/console.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/world/provider.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/world/providers/nw1/nw1.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/etc/scripts/commands/test.lua" beforeDir="false" afterPath="$PROJECT_DIR$/etc/scripts/commands/test.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/network/packet_reader.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/network/packet_reader.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/network/packet_writer.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/network/packet_writer.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/network/packets.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/network/packets.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/player/client.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/player/client.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/scripting/common.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/common.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/scripting/events.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/events.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/scripting/player.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/player.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/scripting/scripting.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/scripting.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/scripting/world.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/world.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/system/atoms.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/atoms.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/system/consts.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/consts.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/system/info.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/info.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/include/system/scripting.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/scripting/scripting.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/system/registries.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/registries.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/system/server.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/system/server.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/util/nbt.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/util/nbt.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/util/pack_array.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/util/pack_array.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/util/position.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/util/position.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/util/uuid.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/util/uuid.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/window/slot.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/window/slot.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/window/window.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/window/window.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/blocks.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/blocks.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/chunk.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/chunk.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/generator.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/generator.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/generator_actor.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/generator_actor.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/world/generators/flatgrass.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/generators/flatgrass.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/include/world/world.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/include/world/world.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/network/packet_reader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packet_reader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/network/packet_writer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packet_writer.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/network/packets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/network/packets.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/player/client.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/player/client.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/system/scripting.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripting/common.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripting/common.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripting/events.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripting/events.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripting/player.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripting/player.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripting/scripting.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripting/scripting.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/scripting/world.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/scripting/world.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/system/registries.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/registries.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/system/server.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/system/server.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/nbt.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/nbt.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/util/position.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/util/position.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/window/window.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/window/window.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/blocks.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/blocks.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/chunk.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/chunk.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/generator_actor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/generator_actor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/world/generators/flatgrass.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/generators/flatgrass.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/world/world.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/world/world.cpp" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -58,6 +88,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.advertisement.text.has.clang-format" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/external/lua" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -69,16 +100,16 @@
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\Projects\C++\Nostalgia\external\lua" />
+      <recent name="E:\Projects\C++\Nostalgia\etc" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\Projects\C++\Nostalgia\src\scripting" />
       <recent name="E:\Projects\C++\Nostalgia\include\scripting" />
       <recent name="E:\Projects\C++\Nostalgia\include\util" />
       <recent name="E:\Projects\C++\Nostalgia\etc\data" />
       <recent name="E:\Projects\C++\Nostalgia\external\nlohmann\include\nlohmann" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="E:\Projects\C++\Nostalgia\external\lua" />
-      <recent name="E:\Projects\C++\Nostalgia\etc" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -129,7 +160,19 @@
       <workItem from="1568383293736" duration="8546000" />
       <workItem from="1568452769820" duration="1753000" />
       <workItem from="1568457181069" duration="20569000" />
-      <workItem from="1568495770242" duration="2296000" />
+      <workItem from="1568495770242" duration="3169000" />
+      <workItem from="1568581979235" duration="3489000" />
+      <workItem from="1568661680569" duration="1252000" />
+      <workItem from="1568742945599" duration="700000" />
+      <workItem from="1568746244285" duration="4134000" />
+      <workItem from="1568929633596" duration="5326000" />
+      <workItem from="1568975453475" duration="20369000" />
+      <workItem from="1569009241968" duration="1831000" />
+      <workItem from="1569061598474" duration="1427000" />
+      <workItem from="1569348799544" duration="4000" />
+      <workItem from="1569433927195" duration="734000" />
+      <workItem from="1569451514150" duration="1788000" />
+      <workItem from="1569489386741" duration="5906000" />
     </task>
     <servers />
   </component>
@@ -148,5 +191,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

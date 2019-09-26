@@ -1,6 +1,20 @@
-//
-// Created by Jacob Zhitomirsky on 07-Sep-19.
-//
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "scripting/scripting.hpp"
 #include "scripting/player.hpp"
@@ -171,6 +185,18 @@ scripting_actor::act ()
       this->resume_script (*state, 1);
     },
 
+    [&] (s_get_block_id_atom, int sid, unsigned short id) {
+      auto state = this->find_state (sid);
+      if (!state) return;
+      if (state->last_yield_code != script::YC_GET_BLOCK) return; // shouldn't happen...
+
+      // push result
+      auto L = static_cast<lua_State *> (state->thread);
+      lua_pushinteger (L, id);
+
+      this->resume_script (*state, 1);
+    },
+
 
     // timeout:
     caf::after (5ms) >> [&] () {
@@ -183,7 +209,7 @@ void
 scripting_actor::handle_runcmd (const std::string& cmd, const std::string& msg, const client_info& cinfo)
 {
   auto& state = this->create_state (script_type::command, true);
-  state.cinfo = cinfo;
+  state.target = cinfo.actor;
 
   this->run_command (state, cmd, msg, cinfo);
 }
@@ -228,7 +254,6 @@ scripting_actor::create_state (script_type type, bool new_thread)
   state.id = this->next_state_id ++;
   state.self = this;
   state.last_yield_code = script::YC_NONE;
-  state.cinfo.id = (unsigned int)-1;
   state.itr = this->states.end ();
   -- state.itr;
 
@@ -362,11 +387,24 @@ scripting_actor::process_yield (script_state& state)
   switch (yield_code)
     {
     case script::YC_GET_POSITION:
-      this->send (state.cinfo.actor, s_get_pos_atom::value, state.id);
+      this->send (state.target, s_get_pos_atom::value, state.id);
       break;
 
     case script::YC_GET_WORLD:
-      this->send (state.cinfo.actor, s_get_world_atom::value, state.id);
+      this->send (state.target, s_get_world_atom::value, state.id);
+      break;
+
+    case script::YC_GET_BLOCK:
+      {
+        auto world_id = (unsigned int)lua_tointeger (L, -4);
+        auto x = (int)lua_tointeger (L, -3);
+        auto y = (int)lua_tointeger (L, -2);
+        auto z = (int)lua_tointeger (L, -1);
+        auto itr = this->world_info_table.find (world_id);
+        if (itr != this->world_info_table.end ())
+          this->send (itr->second.actor, s_get_block_id_atom::value, state.id, x, y, z);
+
+      }
       break;
 
     default: ;
@@ -391,7 +429,7 @@ scripting_actor::process_completion (script_state& state)
       bool suppress = lua_toboolean (L, -1);
       lua_pop (L, 2); // pop both the bool and the event object
 
-      this->send (state.cinfo.actor, event_complete_atom::value, state.cont_id, suppress);
+      this->send (state.target, event_complete_atom::value, state.cont_id, suppress);
     }
 
   this->delete_state (state);
@@ -400,12 +438,12 @@ scripting_actor::process_completion (script_state& state)
 void
 scripting_actor::process_error (script_state& state)
 {
-  if (state.cinfo.id != (unsigned int)-1)
+  if (state.target && state.type == script_type::command)
     {
       auto L = static_cast<lua_State *> (state.thread);
       std::ostringstream err;
       err << color_escape << "4" << "Error" << color_escape << "c" << ": " << lua_tostring (L, -1);
-      this->send (state.cinfo.actor, message_atom::value, err.str ());
+      this->send (state.target, message_atom::value, err.str ());
     }
 
   this->delete_state (state);

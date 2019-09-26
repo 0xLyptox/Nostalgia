@@ -1,7 +1,20 @@
-//
-// Created by Jacob Zhitomirsky on 14-Sep-19.
-//
-
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 #include "scripting/scripting.hpp"
 #include "scripting/player.hpp"
 #include <lua.hpp>
@@ -113,7 +126,7 @@ scripting_actor::start_player_event_trigger (const char *event_name, unsigned in
     }
 
   auto& state = this->create_state (script_type::event_handler, true);
-  state.cinfo = *cinfo;
+  state.target = cinfo->actor;
   state.cont_id = cont_id;
 
   auto L = static_cast<lua_State *> (state.thread);

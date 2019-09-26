@@ -1,6 +1,20 @@
-//
-// Created by Jacob Zhitomirsky on 08-May-19.
-//
+/*
+ * Nostalgia - A custom Minecraft server.
+ * Copyright (C) 2019  Jacob Zhitomirsky
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
 #include "player/client.hpp"
 #include "system/atoms.hpp"
@@ -41,14 +55,19 @@ caf::behavior
 client_actor::make_behavior ()
 {
   return {
-      [this] (broker_atom, caf::actor broker) {
+      [=] (broker_atom, const caf::actor& broker) {
         this->broker = broker;
+      },
+
+      [=] (stop_atom, const caf::actor& requester) {
+        this->quit ();
+        this->send (requester, stop_response_atom::value, this->get_typed_id ());
       },
 
       //
       // Whole packets received from the client's associated broker.
       //
-      [this] (packet_in_atom, std::vector<char> buf) {
+      [=] (packet_in_atom, const std::vector<char>& buf) {
         try
           {
             packet_reader reader (buf);
@@ -71,16 +90,16 @@ client_actor::make_behavior ()
           }
       },
 
-      [this] (packet_out_atom, const std::vector<char>& buf) {
+      [=] (packet_out_atom, const std::vector<char>& buf) {
         return this->delegate (this->broker, packet_out_atom::value, buf);
       },
 
-      [this] (message_atom, const std::string& msg) {
+      [=] (message_atom, const std::string& msg) {
         auto packet = packets::play::make_chat_message_simple (msg, 0);
         this->send (this->broker, packet_out_atom::value, packet.move_data ());
       },
 
-      [this] (event_complete_atom, int cont_id, bool suppress) {
+      [=] (event_complete_atom, int cont_id, bool suppress) {
         auto itr = this->handler_continuations.find (cont_id);
         if (itr != this->handler_continuations.end ())
           {
@@ -99,11 +118,11 @@ client_actor::make_behavior ()
 
       // messages from scripting engine:
 
-      [this] (s_get_pos_atom, int sid) {
+      [=] (s_get_pos_atom, int sid) {
         this->send (this->script_eng, s_get_pos_atom::value, sid, this->pos, this->rot);
       },
 
-      [this] (s_get_world_atom, int sid) {
+      [=] (s_get_world_atom, int sid) {
         this->send (this->script_eng, s_get_world_atom::value, sid, this->curr_world.id);
       },
   };

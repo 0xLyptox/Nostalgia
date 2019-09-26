@@ -16,29 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef NOSTALGIA_SLOT_HPP
-#define NOSTALGIA_SLOT_HPP
+#include "world/provider.hpp"
+
+// providers:
+#include "world/providers/nw1/nw1.hpp"
 
 
-/*!
- * \class slot
- * \brief Represents a window slot which stores an item and its associated data.
- */
-class slot
+std::unique_ptr<world_provider>
+make_world_provider (const std::string& prov_name)
 {
-  int item_id;
-  unsigned char item_count;
+  if (prov_name == "nw1")
+    return std::unique_ptr<world_provider> (new nw1_world_provider ());
 
- public:
-  [[nodiscard]] inline auto id () const { return this->item_id; }
-  [[nodiscard]] inline auto count () const { return this->item_count; }
-
-  inline void set_id (int val) { this->item_id = val; }
-  inline void set_count (unsigned char count) { this->item_count = count; }
-
-  explicit slot (int item_id, unsigned char item_count = 1)
-    : item_id (item_id), item_count (item_count)
-  { }
-};
-
-#endif //NOSTALGIA_SLOT_HPP
+  throw std::runtime_error ("Unknown world provider name");
+}

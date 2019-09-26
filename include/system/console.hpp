@@ -16,29 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef NOSTALGIA_SLOT_HPP
-#define NOSTALGIA_SLOT_HPP
+#ifndef NOSTALGIA_SYSTEM_CONSOLE_HPP
+#define NOSTALGIA_SYSTEM_CONSOLE_HPP
+
+#include <caf/all.hpp>
 
 
-/*!
- * \class slot
- * \brief Represents a window slot which stores an item and its associated data.
- */
-class slot
-{
-  int item_id;
-  unsigned char item_count;
+void
+start_console_thread (caf::actor_system& sys, const caf::actor& srv);
 
- public:
-  [[nodiscard]] inline auto id () const { return this->item_id; }
-  [[nodiscard]] inline auto count () const { return this->item_count; }
-
-  inline void set_id (int val) { this->item_id = val; }
-  inline void set_count (unsigned char count) { this->item_count = count; }
-
-  explicit slot (int item_id, unsigned char item_count = 1)
-    : item_id (item_id), item_count (item_count)
-  { }
-};
-
-#endif //NOSTALGIA_SLOT_HPP
+#endif //NOSTALGIA_SYSTEM_CONSOLE_HPP
